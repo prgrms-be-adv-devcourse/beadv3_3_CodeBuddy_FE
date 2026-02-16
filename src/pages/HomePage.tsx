@@ -13,14 +13,13 @@ export function HomePage() {
                 <div className="relative container mx-auto px-4 py-24 md:py-32 lg:py-40">
                     <div className="max-w-2xl">
                         <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 animate-fade-in">
-                            Elevate Your{' '}
+                            나만의 옷장{' '}
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
-                                Style
+                                ClosetBuddy
                             </span>
                         </h1>
                         <p className="text-lg md:text-xl text-gray-300 mb-8 animate-fade-in" style={{ animationDelay: '100ms' }}>
-                            Discover our curated collection of premium clothing.
-                            Fashion that speaks to your unique personality.
+                            숨겨진 취향까지 찾아드릴게요.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 animate-fade-in" style={{ animationDelay: '200ms' }}>
                             <Button size="lg" asChild className="text-lg h-14 px-8">
