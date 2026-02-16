@@ -6,11 +6,11 @@ export function Footer() {
             <div className="container mx-auto px-4 py-8">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                     <div className="flex items-center space-x-2">
-                        <span className="text-lg font-bold">Fashion Store</span>
+                        <span className="text-lg font-bold">ClosetBuddy</span>
                     </div>
 
                     <p className="text-sm text-muted-foreground">
-                        © {currentYear} Fashion Store. All rights reserved.
+                        © {currentYear} ClosetBuddy. All rights reserved.
                     </p>
 
                     <div className="flex items-center space-x-4">
