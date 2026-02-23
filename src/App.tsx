@@ -7,7 +7,9 @@ import {
   ProductDetailPage,
   LoginPage,
   SignUpPage,
-  MyAccountPage
+  MyAccountPage,
+  BoardPage,
+  BoardDetailPage
 } from '@/pages';
 import { OAuthCallbackPage } from '@/pages/OAuthCallbackPage';
 
@@ -33,6 +35,8 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/account" element={<MyAccountPage />} />
+            <Route path="/board" element={<BoardPage />} />
+            <Route path="/board/:postId" element={<BoardDetailPage />} />
             <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
           </Route>
         </Routes>

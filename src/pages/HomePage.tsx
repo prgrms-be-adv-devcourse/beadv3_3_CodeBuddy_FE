@@ -19,18 +19,18 @@ export function HomePage() {
                             </span>
                         </h1>
                         <p className="text-lg md:text-xl text-gray-300 mb-8 animate-fade-in" style={{ animationDelay: '100ms' }}>
-                            숨겨진 취향까지 찾아드릴게요.
+                            숨겨진 취향까지 찾아드릴게요
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 animate-fade-in" style={{ animationDelay: '200ms' }}>
                             <Button size="lg" asChild className="text-lg h-14 px-8">
                                 <Link to="/products">
-                                    Shop Now
+                                    쇼핑하기
                                     <ArrowRight className="ml-2 h-5 w-5" />
                                 </Link>
                             </Button>
                             <Button size="lg" variant="outline" asChild className="text-lg h-14 px-8 bg-white/10 border-white/30 hover:bg-white/20">
                                 <Link to="/products?category=TOP">
-                                    Browse Tops
+                                    상의 보기
                                 </Link>
                             </Button>
                         </div>
@@ -46,9 +46,9 @@ export function HomePage() {
                             <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
                                 <Sparkles className="h-8 w-8 text-primary" />
                             </div>
-                            <h3 className="text-xl font-semibold mb-2">Premium Quality</h3>
+                            <h3 className="text-xl font-semibold mb-2">프리미엄 품질</h3>
                             <p className="text-muted-foreground">
-                                Carefully curated pieces made from the finest materials for lasting style.
+                                최고급 소재로 제작된 엄선된 아이템으로 오래도록 스타일을 유지하세요.
                             </p>
                         </div>
 
@@ -56,9 +56,9 @@ export function HomePage() {
                             <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
                                 <Truck className="h-8 w-8 text-primary" />
                             </div>
-                            <h3 className="text-xl font-semibold mb-2">Free Shipping</h3>
+                            <h3 className="text-xl font-semibold mb-2">무료 배송</h3>
                             <p className="text-muted-foreground">
-                                Enjoy complimentary shipping on all orders over ₩50,000.
+                                ₩50,000 이상 주문 시 무료 배송을 즐기세요.
                             </p>
                         </div>
 
@@ -66,9 +66,9 @@ export function HomePage() {
                             <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
                                 <ShoppingBag className="h-8 w-8 text-primary" />
                             </div>
-                            <h3 className="text-xl font-semibold mb-2">Easy Returns</h3>
+                            <h3 className="text-xl font-semibold mb-2">간편 반품</h3>
                             <p className="text-muted-foreground">
-                                Not satisfied? Return within 30 days for a full refund.
+                                만족하지 않으셨다면 30일 이내 전액 환불이 가능합니다.
                             </p>
                         </div>
                     </div>
@@ -79,9 +79,9 @@ export function HomePage() {
             <section className="py-20">
                 <div className="container mx-auto px-4">
                     <div className="text-center mb-12">
-                        <h2 className="text-3xl md:text-4xl font-bold mb-4">Shop by Category</h2>
+                        <h2 className="text-3xl md:text-4xl font-bold mb-4">카테고리별 쇼핑</h2>
                         <p className="text-muted-foreground max-w-2xl mx-auto">
-                            Find exactly what you're looking for in our carefully organized collections
+                            정성스럽게 구성된 컬렉션에서 원하는 아이템을 찾아보세요
                         </p>
                     </div>
 
@@ -93,15 +93,15 @@ export function HomePage() {
                         >
                             <img
                                 src="https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=800"
-                                alt="Tops Collection"
+                                alt="상의 컬렉션"
                                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                             <div className="absolute bottom-0 left-0 p-8">
-                                <h3 className="text-3xl font-bold text-white mb-2">Tops</h3>
-                                <p className="text-white/80 mb-4">T-shirts, blouses, and more</p>
+                                <h3 className="text-3xl font-bold text-white mb-2">상의</h3>
+                                <p className="text-white/80 mb-4">티셔츠, 블라우스 등</p>
                                 <span className="inline-flex items-center text-white font-medium">
-                                    Shop Now <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-2 transition-transform" />
+                                    보러가기 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-2 transition-transform" />
                                 </span>
                             </div>
                         </Link>
@@ -113,15 +113,15 @@ export function HomePage() {
                         >
                             <img
                                 src="https://images.unsplash.com/photo-1542272604-787c3835535d?w=800"
-                                alt="Bottoms Collection"
+                                alt="하의 컬렉션"
                                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                             <div className="absolute bottom-0 left-0 p-8">
-                                <h3 className="text-3xl font-bold text-white mb-2">Bottoms</h3>
-                                <p className="text-white/80 mb-4">Jeans, pants, and shorts</p>
+                                <h3 className="text-3xl font-bold text-white mb-2">바지</h3>
+                                <p className="text-white/80 mb-4">청바지, 슬랙스, 반바지</p>
                                 <span className="inline-flex items-center text-white font-medium">
-                                    Shop Now <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-2 transition-transform" />
+                                    보러가기 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-2 transition-transform" />
                                 </span>
                             </div>
                         </Link>
@@ -133,14 +133,14 @@ export function HomePage() {
             <section className="py-20 bg-primary text-primary-foreground">
                 <div className="container mx-auto px-4 text-center">
                     <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                        Ready to upgrade your wardrobe?
+                        옷장을 업그레이드할 준비 되셨나요?
                     </h2>
                     <p className="text-primary-foreground/80 max-w-2xl mx-auto mb-8">
-                        Join thousands of satisfied customers who have transformed their style with Fashion Store.
+                        수천 명의 만족한 고객들과 함께 나만의 스타일을 완성해 보세요.
                     </p>
                     <Button size="lg" variant="secondary" asChild className="text-lg h-14 px-8">
                         <Link to="/products">
-                            Explore Collection
+                            컬렉션 둘러보기
                             <ArrowRight className="ml-2 h-5 w-5" />
                         </Link>
                     </Button>

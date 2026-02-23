@@ -83,18 +83,18 @@ export function MyAccountPage() {
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <h1 className="text-3xl font-bold mb-8">My Account</h1>
+            <h1 className="text-3xl font-bold mb-8">내 계정</h1>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
                 <TabsList className="grid w-full grid-cols-3 lg:w-[400px]">
                     <TabsTrigger value="profile" className="flex items-center gap-2">
-                        <User className="h-4 w-4" /> Profile
+                        <User className="h-4 w-4" /> 프로필
                     </TabsTrigger>
                     <TabsTrigger value="seller" className="flex items-center gap-2">
-                        <ShoppingBag className="h-4 w-4" /> Seller
+                        <ShoppingBag className="h-4 w-4" /> 판매자
                     </TabsTrigger>
                     <TabsTrigger value="stores" className="flex items-center gap-2" disabled={!sellerInfo}>
-                        <Store className="h-4 w-4" /> Stores
+                        <Store className="h-4 w-4" /> 상점
                     </TabsTrigger>
                 </TabsList>
 
@@ -102,33 +102,33 @@ export function MyAccountPage() {
                 <TabsContent value="profile">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Profile Information</CardTitle>
-                            <CardDescription>Update your personal details here.</CardDescription>
+                            <CardTitle>프로필 정보</CardTitle>
+                            <CardDescription>개인 정보를 수정하세요.</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <form onSubmit={handleUpdateProfile} className="space-y-4">
                                 <div className="grid gap-2">
-                                    <Label htmlFor="name">Name</Label>
+                                    <Label htmlFor="name">이름</Label>
                                     <Input id="name" name="name" defaultValue={profile?.name} />
                                 </div>
                                 <div className="grid gap-2">
-                                    <Label htmlFor="email">Email</Label>
+                                    <Label htmlFor="email">이메일</Label>
                                     <Input id="email" name="email" type="email" defaultValue={profile?.email} />
                                 </div>
                                 <div className="grid gap-2">
-                                    <Label htmlFor="phone">Phone</Label>
+                                    <Label htmlFor="phone">전화번호</Label>
                                     <Input id="phone" name="phone" defaultValue={profile?.phone} />
                                 </div>
                                 <div className="grid gap-2">
-                                    <Label htmlFor="address">Address</Label>
+                                    <Label htmlFor="address">주소</Label>
                                     <Input id="address" name="address" defaultValue={profile?.address} />
                                 </div>
                                 <div className="grid gap-2">
-                                    <Label>Role</Label>
+                                    <Label>역할</Label>
                                     <Input value={profile?.role} disabled className="bg-muted" />
                                 </div>
                                 <Button type="submit" disabled={updateProfileMutation.isPending}>
-                                    {updateProfileMutation.isPending ? 'Saving...' : 'Save Changes'}
+                                    {updateProfileMutation.isPending ? '저장 중...' : '변경 저장'}
                                 </Button>
                             </form>
                         </CardContent>
@@ -139,25 +139,25 @@ export function MyAccountPage() {
                 <TabsContent value="seller">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Seller Management</CardTitle>
-                            <CardDescription>Manage your seller profile.</CardDescription>
+                            <CardTitle>판매자 관리</CardTitle>
+                            <CardDescription>판매자 프로필을 관리하세요.</CardDescription>
                         </CardHeader>
                         <CardContent>
                             {sellerInfo ? (
                                 <div className="space-y-4">
                                     <div className="p-4 bg-green-50 text-green-700 rounded-md border border-green-200">
-                                        Currently active as a seller: <strong>{sellerInfo.sellerName}</strong>
+                                        현재 판매자로 활동 중: <strong>{sellerInfo.sellerName}</strong>
                                     </div>
                                     <p className="text-muted-foreground">
-                                        You can manage your stores in the Stores tab.
+                                        상점 탭에서 상점을 관리할 수 있습니다.
                                     </p>
                                 </div>
                             ) : (
                                 <div className="space-y-4">
                                     <div className="bg-muted p-4 rounded-md">
-                                        <h3 className="font-semibold mb-2">Become a Seller</h3>
+                                        <h3 className="font-semibold mb-2">판매자 등록</h3>
                                         <p className="text-sm text-muted-foreground mb-4">
-                                            Start selling your own products on Fashion Store.
+                                            ClosetBuddy에서 나만의 상품을 판매해보세요.
                                         </p>
                                         <form
                                             onSubmit={(e) => {
@@ -169,12 +169,12 @@ export function MyAccountPage() {
                                         >
                                             <Input
                                                 name="sellerName"
-                                                placeholder="Enter your seller/brand name"
+                                                placeholder="판매자/브랜드 이름 입력"
                                                 required
                                                 className="max-w-sm"
                                             />
                                             <Button type="submit" disabled={registerSellerMutation.isPending}>
-                                                Register as Seller
+                                                판매자 등록
                                             </Button>
                                         </form>
                                     </div>
@@ -188,8 +188,8 @@ export function MyAccountPage() {
                 <TabsContent value="stores">
                     <Card>
                         <CardHeader>
-                            <CardTitle>My Stores</CardTitle>
-                            <CardDescription>Manage your stores and products.</CardDescription>
+                            <CardTitle>내 상점</CardTitle>
+                            <CardDescription>상점과 상품을 관리하세요.</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="mb-6">
@@ -202,11 +202,11 @@ export function MyAccountPage() {
                                     className="flex gap-2 items-end"
                                 >
                                     <div className="grid gap-2 flex-1 max-w-sm">
-                                        <Label htmlFor="storeName">New Store Name</Label>
-                                        <Input id="storeName" name="storeName" placeholder="e.g. Summer Collection" required />
+                                        <Label htmlFor="storeName">새 상점 이름</Label>
+                                        <Input id="storeName" name="storeName" placeholder="예: 여름 컬렉션" required />
                                     </div>
                                     <Button type="submit" disabled={createStoreMutation.isPending}>
-                                        Create Store
+                                        상점 만들기
                                     </Button>
                                 </form>
                             </div>
@@ -220,14 +220,14 @@ export function MyAccountPage() {
                                         </CardHeader>
                                         <CardContent>
                                             <Button variant="outline" className="w-full">
-                                                Manage Products
+                                                상품 관리
                                             </Button>
                                         </CardContent>
                                     </Card>
                                 ))}
                                 {myStores?.length === 0 && (
                                     <p className="text-muted-foreground col-span-full text-center py-8">
-                                        No stores found. Create your first store above!
+                                        상점이 없습니다. 위에서 첫 번째 상점을 만들어보세요!
                                     </p>
                                 )}
                             </div>

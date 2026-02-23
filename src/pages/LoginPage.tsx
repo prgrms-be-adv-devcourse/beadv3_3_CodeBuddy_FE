@@ -44,10 +44,10 @@ export function LoginPage() {
             };
 
             setAuth(mockUser, 'mock-jwt-token');
-            toast.success('Welcome back!');
+            toast.success('로그인에 성공했습니다!');
             navigate('/');
         } catch (error) {
-            toast.error('Invalid credentials. Please try again.');
+            toast.error('아이디 또는 비밀번호가 올바르지 않습니다.');
         } finally {
             setIsLoading(false);
         }
@@ -57,9 +57,9 @@ export function LoginPage() {
         <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
             <Card className="w-full max-w-md">
                 <CardHeader className="text-center">
-                    <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
+                    <CardTitle className="text-2xl font-bold">로그인</CardTitle>
                     <CardDescription>
-                        Enter your credentials to access your account
+                        계정에 로그인하세요
                     </CardDescription>
                 </CardHeader>
 
@@ -67,15 +67,15 @@ export function LoginPage() {
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                         <div className="space-y-2">
                             <label htmlFor="memberId" className="text-sm font-medium">
-                                Username
+                                아이디
                             </label>
                             <Input
                                 id="memberId"
                                 type="text"
-                                placeholder="Enter your username"
+                                placeholder="아이디를 입력하세요"
                                 {...register('memberId', {
-                                    required: 'Username is required',
-                                    minLength: { value: 4, message: 'Username must be at least 4 characters' }
+                                    required: '아이디를 입력해주세요',
+                                    minLength: { value: 4, message: '아이디는 최소 4자 이상이어야 합니다' }
                                 })}
                             />
                             {errors.memberId && (
@@ -85,15 +85,15 @@ export function LoginPage() {
 
                         <div className="space-y-2">
                             <label htmlFor="password" className="text-sm font-medium">
-                                Password
+                                비밀번호
                             </label>
                             <div className="relative">
                                 <Input
                                     id="password"
                                     type={showPassword ? 'text' : 'password'}
-                                    placeholder="Enter your password"
+                                    placeholder="비밀번호를 입력하세요"
                                     {...register('password', {
-                                        required: 'Password is required',
+                                        required: '비밀번호를 입력해주세요',
                                     })}
                                 />
                                 <Button
@@ -116,14 +116,14 @@ export function LoginPage() {
                         </div>
 
                         <Button type="submit" className="w-full" disabled={isLoading}>
-                            {isLoading ? 'Signing in...' : 'Sign in'}
+                            {isLoading ? '로그인 중...' : '로그인'}
                         </Button>
                     </form>
 
                     <div className="relative my-6">
                         <Separator />
                         <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-2 text-xs text-muted-foreground">
-                            or continue with
+                            또는 소셜 로그인
                         </span>
                     </div>
 
@@ -153,15 +153,15 @@ export function LoginPage() {
                                 fill="#EA4335"
                             />
                         </svg>
-                        Continue with Google
+                        Google로 계속하기
                     </Button>
                 </CardContent>
 
                 <CardFooter className="justify-center">
                     <p className="text-sm text-muted-foreground">
-                        Don't have an account?{' '}
+                        계정이 없으신가요?{' '}
                         <Link to="/signup" className="font-medium text-primary hover:underline">
-                            Sign up
+                            회원가입
                         </Link>
                     </p>
                 </CardFooter>

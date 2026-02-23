@@ -12,6 +12,7 @@ const navLinks = [
     { name: '전체 상품', path: '/products' },
     { name: '상의', path: '/products?category=TOP' },
     { name: '바지', path: '/products?category=PANTS' },
+    { name: '게시판', path: '/board' },
 ];
 
 export function Header() {

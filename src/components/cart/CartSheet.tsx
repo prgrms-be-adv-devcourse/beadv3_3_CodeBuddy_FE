@@ -40,10 +40,10 @@ export function CartSheet() {
                 <SheetHeader>
                     <SheetTitle className="flex items-center gap-2">
                         <ShoppingCart className="h-5 w-5" />
-                        Shopping Cart
+                        장바구니
                         {totalItems() > 0 && (
                             <span className="text-sm text-muted-foreground">
-                                ({totalItems()} items)
+                                ({totalItems()}개)
                             </span>
                         )}
                     </SheetTitle>
@@ -54,12 +54,12 @@ export function CartSheet() {
                         <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mb-6">
                             <ShoppingBag className="h-10 w-10 text-muted-foreground" />
                         </div>
-                        <h3 className="font-semibold text-lg mb-2">Your cart is empty</h3>
+                        <h3 className="font-semibold text-lg mb-2">장바구니가 비어 있습니다</h3>
                         <p className="text-muted-foreground mb-6">
-                            Looks like you haven't added anything yet.
+                            아직 추가된 상품이 없습니다.
                         </p>
                         <Button onClick={handleViewProducts}>
-                            Browse Products
+                            상품 둘러보기
                         </Button>
                     </div>
                 ) : (
@@ -77,16 +77,16 @@ export function CartSheet() {
 
                             <div className="space-y-3">
                                 <div className="flex justify-between text-sm">
-                                    <span className="text-muted-foreground">Subtotal</span>
+                                    <span className="text-muted-foreground">소계</span>
                                     <span>{formatPrice(totalPrice())}</span>
                                 </div>
                                 <div className="flex justify-between text-sm">
-                                    <span className="text-muted-foreground">Shipping</span>
-                                    <span className="text-green-600">Free</span>
+                                    <span className="text-muted-foreground">배송비</span>
+                                    <span className="text-green-600">무료</span>
                                 </div>
                                 <Separator />
                                 <div className="flex justify-between font-semibold text-lg">
-                                    <span>Total</span>
+                                    <span>합계</span>
                                     <span>{formatPrice(totalPrice())}</span>
                                 </div>
                             </div>
@@ -97,7 +97,7 @@ export function CartSheet() {
                                     size="lg"
                                     onClick={handleCheckout}
                                 >
-                                    Checkout
+                                    결제하기
                                 </Button>
                                 <Button
                                     variant="outline"
@@ -106,7 +106,7 @@ export function CartSheet() {
                                         clearCart();
                                     }}
                                 >
-                                    Clear Cart
+                                    장바구니 비우기
                                 </Button>
                             </SheetFooter>
                         </div>

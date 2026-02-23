@@ -48,9 +48,9 @@ export function ProductGrid({ products, isLoading }: ProductGridProps) {
                         />
                     </svg>
                 </div>
-                <h3 className="text-xl font-semibold mb-2">No products found</h3>
+                <h3 className="text-xl font-semibold mb-2">상품을 찾을 수 없습니다</h3>
                 <p className="text-muted-foreground max-w-sm">
-                    We couldn't find any products matching your criteria. Try adjusting your filters.
+                    조건에 맞는 상품이 없습니다. 필터를 조정해보세요.
                 </p>
             </div>
         );

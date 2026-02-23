@@ -126,13 +126,13 @@ export function ProductsPage() {
             <div className="mb-8">
                 <h1 className="text-3xl font-bold mb-2">
                     {selectedCategory === 'ALL'
-                        ? 'All Products'
+                        ? '전체 상품'
                         : selectedCategory === 'TOP'
-                            ? 'Tops'
-                            : 'Bottoms'}
+                            ? '상의'
+                            : '하의'}
                 </h1>
                 <p className="text-muted-foreground">
-                    Discover our curated collection of stylish clothing
+                    스타일리시한 의류 컬렉션을 둘러보세요
                 </p>
             </div>
 
