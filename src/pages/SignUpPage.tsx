@@ -37,9 +37,7 @@ export function SignUpPage() {
             toast.success('회원가입이 완료되었습니다! 로그인해주세요.');
             navigate('/login');
         } catch (error) {
-            // Mock 회원가입 성공 (백엔드 없을 때)
-            toast.success('회원가입이 완료되었습니다! 로그인해주세요.');
-            navigate('/login');
+            toast.error('회원가입에 실패했습니다. 잠시 후 다시 시도해주세요.');
         } finally {
             setIsLoading(false);
         }

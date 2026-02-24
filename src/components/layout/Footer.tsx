@@ -10,7 +10,7 @@ export function Footer() {
                     </div>
 
                     <p className="text-sm text-muted-foreground">
-                        © {currentYear} ClosetBuddy. All rights reserved.
+                        © {currentYear} ClosetBuddy. 모든 권리 보유.
                     </p>
 
                     <div className="flex items-center space-x-4">
@@ -18,13 +18,13 @@ export function Footer() {
                             href="#"
                             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                         >
-                            Privacy Policy
+                            개인정보처리방침
                         </a>
                         <a
                             href="#"
                             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                         >
-                            Terms of Service
+                            이용약관
                         </a>
                     </div>
                 </div>

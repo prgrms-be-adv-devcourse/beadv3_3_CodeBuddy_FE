@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { CartItem } from './CartItem';
+import { CartRecommendations } from './CartRecommendations';
 import { useCartStore } from '@/stores/cartStore';
 import { useAuthStore } from '@/stores/authStore';
 
@@ -36,7 +37,7 @@ export function CartSheet() {
 
     return (
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
-            <SheetContent className="w-full sm:max-w-md flex flex-col">
+            <SheetContent className="w-full sm:max-w-md flex flex-col px-3">
                 <SheetHeader>
                     <SheetTitle className="flex items-center gap-2">
                         <ShoppingCart className="h-5 w-5" />
@@ -71,6 +72,8 @@ export function CartSheet() {
                                 ))}
                             </div>
                         </ScrollArea>
+
+                        <CartRecommendations />
 
                         <div className="mt-auto pt-4">
                             <Separator className="mb-4" />

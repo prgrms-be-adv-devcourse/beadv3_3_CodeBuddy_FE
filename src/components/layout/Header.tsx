@@ -84,7 +84,7 @@ export function Header() {
                                     </Link>
                                 </Button>
                                 <Button variant="outline" size="sm" onClick={logout}>
-                                    Logout
+                                    로그아웃
                                 </Button>
                             </div>
                         ) : (

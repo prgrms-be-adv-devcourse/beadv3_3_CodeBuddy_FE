@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useAuthStore } from '@/stores/authStore';
+import { authService } from '@/services/authService';
+import { userService } from '@/services/userService';
 import { toast } from 'sonner';
 import type { LoginRequest } from '@/types';
 
@@ -26,24 +28,18 @@ export function LoginPage() {
     const onSubmit = async (data: LoginRequest) => {
         setIsLoading(true);
         try {
-            // 실제 로그인 API 호출 (백엔드 연동 시)
-            // const response = await authService.login(data);
+            // 1단계: 로그인 → accessToken, refreshToken 획득
+            const { accessToken, refreshToken } = await authService.login(data);
 
-            // Mock 로그인 (데모용)
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            // 2단계: 토큰 저장
+            localStorage.setItem('accessToken', accessToken);
+            if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
 
-            // Mock 사용자 데이터
-            const mockUser = {
-                id: 1,
-                memberId: data.memberId,
-                name: data.memberId,
-                email: `${data.memberId}@example.com`,
-                address: 'Seoul, Korea',
-                phone: '010-1234-5678',
-                role: 'USER',
-            };
+            // 3단계: 내 정보 조회
+            const me = await userService.getMe();
 
-            setAuth(mockUser, 'mock-jwt-token');
+            // 4단계: authStore에 인증 상태 저장
+            setAuth(me, accessToken);
             toast.success('로그인에 성공했습니다!');
             navigate('/');
         } catch (error) {
@@ -131,8 +127,8 @@ export function LoginPage() {
                         variant="outline"
                         className="w-full"
                         onClick={() => {
-                            // Google OAuth2 로그인 시작 - user-service로 직접 이동
-                            window.location.href = 'http://localhost:8085/oauth2/authorization/google';
+                            // Google OAuth2 로그인 시작 - Gateway 경유
+                            window.location.href = 'http://localhost:8090/oauth2/authorization/google';
                         }}
                     >
                         <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">

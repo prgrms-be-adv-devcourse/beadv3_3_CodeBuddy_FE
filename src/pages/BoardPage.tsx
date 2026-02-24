@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { MessageCircle, Eye, ChevronLeft, ChevronRight, Image } from 'lucide-react';
+import { MessageCircle, Eye, ChevronLeft, ChevronRight, Image, X, Construction, PenSquare } from 'lucide-react';
 
 interface BoardPost {
     id: number;
@@ -173,6 +173,7 @@ const allPosts: BoardPost[] = [
 
 export function BoardPage() {
     const [currentPage, setCurrentPage] = useState(1);
+    const [showBanner, setShowBanner] = useState(true);
 
     const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE);
     const startIndex = (currentPage - 1) * POSTS_PER_PAGE;
@@ -188,6 +189,23 @@ export function BoardPage() {
     return (
         <div className="min-h-screen bg-muted/30 py-8">
             <div className="container mx-auto px-4 max-w-5xl">
+                {/* Coming Soon Banner */}
+                {showBanner && (
+                    <div className="mb-6 relative flex items-center gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-amber-900 shadow-sm dark:border-amber-700 dark:bg-amber-950/50 dark:text-amber-200">
+                        <Construction className="h-5 w-5 flex-shrink-0 text-amber-600 dark:text-amber-400" />
+                        <p className="text-sm flex-1">
+                            <span className="font-semibold">개발 예정 </span>
+                            이 게시판은 현재 더미 데이터로 운영되며, 추후 백엔드 연동과 함께 정식 오픈될 예정입니다.
+                        </p>
+                        <button
+                            onClick={() => setShowBanner(false)}
+                            className="flex-shrink-0 rounded-md p-1 hover:bg-amber-200/50 transition-colors dark:hover:bg-amber-800/50"
+                        >
+                            <X className="h-4 w-4" />
+                        </button>
+                    </div>
+                )}
+
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold mb-2">스타일 게시판</h1>
@@ -197,7 +215,7 @@ export function BoardPage() {
                 </div>
 
                 {/* Post List */}
-                <Card className="overflow-hidden shadow-lg">
+                <Card className="overflow-hidden shadow-lg gap-0 py-0">
                     {/* Table Header */}
                     <div className="hidden md:grid md:grid-cols-[1fr_auto_auto_auto] gap-4 px-6 py-3 bg-muted/50 border-b text-sm font-semibold text-muted-foreground">
                         <span>제목</span>

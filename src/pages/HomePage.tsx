@@ -1,13 +1,40 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ShoppingBag, Sparkles, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
+const heroImages = [
+    'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1920',
+    'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1920',
+    'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=1920',
+    'https://images.unsplash.com/photo-1445205170230-053b83016050?w=1920',
+    'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1920',
+];
+
 export function HomePage() {
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
+        }, 3000);
+        return () => clearInterval(interval);
+    }, []);
+
     return (
         <div className="min-h-screen">
             {/* Hero Section */}
             <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
-                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1920')] bg-cover bg-center opacity-20" />
+                {heroImages.map((src, index) => (
+                    <div
+                        key={src}
+                        className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out"
+                        style={{
+                            backgroundImage: `url('${src}')`,
+                            opacity: index === currentImageIndex ? 0.2 : 0,
+                        }}
+                    />
+                ))}
                 <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent" />
 
                 <div className="relative container mx-auto px-4 py-24 md:py-32 lg:py-40">

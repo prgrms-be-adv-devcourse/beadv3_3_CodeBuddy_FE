@@ -1,4 +1,4 @@
-import { api } from '@/lib/axios';
+import api from '@/lib/axios';
 import type { MemberResponse, MemberUpdateRequest } from '@/types';
 
 const MEMBER_BASE = '/api/v1/members';
