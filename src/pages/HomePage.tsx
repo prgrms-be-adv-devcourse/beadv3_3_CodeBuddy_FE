@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 const heroImages = [
     'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1920',
     'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1920',
-    'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=1920',
     'https://images.unsplash.com/photo-1445205170230-053b83016050?w=1920',
     'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1920',
 ];
@@ -31,7 +30,7 @@ export function HomePage() {
                         className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out"
                         style={{
                             backgroundImage: `url('${src}')`,
-                            opacity: index === currentImageIndex ? 0.2 : 0,
+                            opacity: index === currentImageIndex ? 0.55 : 0,
                         }}
                     />
                 ))}

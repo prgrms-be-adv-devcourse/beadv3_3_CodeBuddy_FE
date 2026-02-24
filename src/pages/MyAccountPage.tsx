@@ -46,16 +46,17 @@ export function MyAccountPage() {
     };
 
     // === Seller Logic ===
-    const { data: sellerInfo, isLoading: isSellerLoading } = useQuery({
+    const { data: sellerInfo } = useQuery({
         queryKey: ['my-seller'],
         queryFn: sellerService.getMyInfo,
+        enabled: user?.role === 'SELLER', // Only fetch if user has SELLER role
         retry: false,
     });
 
     const registerSellerMutation = useMutation({
         mutationFn: async (name: string) => {
-            await userService.registerSellerRole(); // 권한 변경
-            await sellerService.register({ sellerName: name }); // 판매자 등록
+            // sellerService.register 내부에서 user-service의 권한 변경까지 처리함
+            await sellerService.register({ sellerName: name });
         },
         onSuccess: () => {
             toast.success('판매자로 등록되었습니다!');
@@ -154,30 +155,28 @@ export function MyAccountPage() {
                                 </div>
                             ) : (
                                 <div className="space-y-4">
-                                    <div className="bg-muted p-4 rounded-md">
-                                        <h3 className="font-semibold mb-2">판매자 등록</h3>
-                                        <p className="text-sm text-muted-foreground mb-4">
-                                            ClosetBuddy에서 나만의 상품을 판매해보세요.
-                                        </p>
-                                        <form
-                                            onSubmit={(e) => {
-                                                e.preventDefault();
-                                                const formData = new FormData(e.currentTarget);
-                                                registerSellerMutation.mutate(formData.get('sellerName') as string);
-                                            }}
-                                            className="flex gap-2"
-                                        >
-                                            <Input
-                                                name="sellerName"
-                                                placeholder="판매자/브랜드 이름 입력"
-                                                required
-                                                className="max-w-sm"
-                                            />
-                                            <Button type="submit" disabled={registerSellerMutation.isPending}>
-                                                판매자 등록
-                                            </Button>
-                                        </form>
-                                    </div>
+                                    <h3 className="font-semibold">판매자 등록</h3>
+                                    <p className="text-sm text-muted-foreground">
+                                        ClosetBuddy에서 나만의 상품을 판매해보세요.
+                                    </p>
+                                    <form
+                                        onSubmit={(e) => {
+                                            e.preventDefault();
+                                            const formData = new FormData(e.currentTarget);
+                                            registerSellerMutation.mutate(formData.get('sellerName') as string);
+                                        }}
+                                        className="flex gap-2"
+                                    >
+                                        <Input
+                                            name="sellerName"
+                                            placeholder="판매자/브랜드 이름 입력"
+                                            required
+                                            className="max-w-sm"
+                                        />
+                                        <Button type="submit" disabled={registerSellerMutation.isPending}>
+                                            판매자 등록
+                                        </Button>
+                                    </form>
                                 </div>
                             )}
                         </CardContent>

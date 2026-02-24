@@ -76,6 +76,15 @@ const mockProducts: ProductResponse[] = [
 export function ProductsPage() {
     const [searchParams, setSearchParams] = useSearchParams();
     const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+
+    // Debounce search query
+    useMemo(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearchQuery(searchQuery);
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
 
     const categoryParam = searchParams.get('category') as Category | null;
     const selectedCategory: Category | 'ALL' = categoryParam || 'ALL';
@@ -99,8 +108,8 @@ export function ProductsPage() {
         }
 
         // 검색 필터
-        if (searchQuery) {
-            const query = searchQuery.toLowerCase();
+        if (debouncedSearchQuery) {
+            const query = debouncedSearchQuery.toLowerCase();
             result = result.filter(
                 (p) =>
                     p.productName.toLowerCase().includes(query) ||
@@ -109,7 +118,7 @@ export function ProductsPage() {
         }
 
         return result;
-    }, [products, selectedCategory, searchQuery]);
+    }, [products, selectedCategory, debouncedSearchQuery]);
 
     const handleCategoryChange = (category: Category | 'ALL') => {
         if (category === 'ALL') {

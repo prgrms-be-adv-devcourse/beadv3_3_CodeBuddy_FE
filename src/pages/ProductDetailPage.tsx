@@ -101,6 +101,30 @@ export function ProductDetailPage() {
         }
     };
 
+    const handleOrderNow = async () => {
+        if (!product) return;
+
+        if (!isAuthenticated) {
+            toast.error('주문하려면 로그인해주세요');
+            navigate('/login');
+            return;
+        }
+
+        // 바로 구매 시 결제 페이지로 상품 정보와 함께 이동
+        navigate('/checkout', {
+            state: {
+                buyNowItem: {
+                    cartItemId: Date.now(), // 임시 ID
+                    productId: product.productId,
+                    productName: product.productName,
+                    cartCount: 1,
+                    cartPrice: product.productPrice,
+                    imageUrl: product.imageUrl,
+                }
+            }
+        });
+    };
+
     if (isLoading) {
         return (
             <div className="container mx-auto px-4 py-8">
@@ -221,16 +245,27 @@ export function ProductDetailPage() {
 
                     <Separator />
 
-                    {/* Add to Cart */}
-                    <Button
-                        size="lg"
-                        className="w-full text-lg h-14"
-                        onClick={handleAddToCart}
-                        disabled={product.productStock === 0}
-                    >
-                        <ShoppingCart className="h-5 w-5 mr-2" />
-                        {product.productStock === 0 ? '품절' : '장바구니에 담기'}
-                    </Button>
+                    {/* Actions */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <Button
+                            variant="outline"
+                            size="lg"
+                            className="text-lg h-14"
+                            onClick={handleAddToCart}
+                            disabled={product.productStock === 0}
+                        >
+                            <ShoppingCart className="h-5 w-5 mr-2" />
+                            장바구니
+                        </Button>
+                        <Button
+                            size="lg"
+                            className="text-lg h-14"
+                            onClick={handleOrderNow}
+                            disabled={product.productStock === 0}
+                        >
+                            {product.productStock === 0 ? '품절' : '바로 구매하기'}
+                        </Button>
+                    </div>
                 </div>
             </div>
         </div>

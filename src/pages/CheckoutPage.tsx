@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, ShoppingBag, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,19 +10,25 @@ import { toast } from 'sonner';
 
 export function CheckoutPage() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { items, totalPrice, clearCart } = useCartStore();
     const [isLoading, setIsLoading] = useState(false);
+
+    // 바로 구매(단건 주문)인지 장바구니(다건 주문)인지 확인
+    const buyNowItem = location.state?.buyNowItem;
+    const checkoutItems = buyNowItem ? [buyNowItem] : items;
+    const checkoutTotalPrice = buyNowItem ? buyNowItem.cartPrice * buyNowItem.cartCount : totalPrice();
 
     const formatPrice = (price: number) =>
         new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(price);
 
-    // 장바구니가 비어있으면 홈으로
-    if (items.length === 0) {
+    // 주문할 상품이 없으면 홈으로
+    if (checkoutItems.length === 0) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center text-center p-8">
                 <ShoppingBag className="h-16 w-16 text-muted-foreground mb-4" />
-                <h2 className="text-xl font-semibold mb-2">장바구니가 비어 있습니다</h2>
-                <p className="text-muted-foreground mb-6">주문할 상품을 먼저 장바구니에 담아주세요.</p>
+                <h2 className="text-xl font-semibold mb-2">주문할 상품이 없습니다</h2>
+                <p className="text-muted-foreground mb-6">구매를 계속하시려면 상품을 선택해주세요.</p>
                 <Button onClick={() => navigate('/products')}>상품 둘러보기</Button>
             </div>
         );
@@ -31,16 +37,22 @@ export function CheckoutPage() {
     const handleOrder = async () => {
         setIsLoading(true);
         try {
-            const orderItems = items.map(item => ({
+            const orderItems = checkoutItems.map(item => ({
                 productId: item.productId,
                 orderCount: item.cartCount,
             }));
-            await orderService.createOrder({ orderItems });
-            clearCart();
+            const orderId = await orderService.createOrder({ orderItems });
+
+            // 장바구니 구매인 경우에만 장바구니 비우기
+            if (!buyNowItem) {
+                clearCart();
+            }
+
             toast.success('주문이 완료되었습니다!');
-            navigate('/account');
-        } catch (error) {
-            toast.error('주문 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+            navigate(`/orders/${orderId}`);
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.message || '주문 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
+            toast.error(errorMessage);
         } finally {
             setIsLoading(false);
         }
@@ -66,11 +78,11 @@ export function CheckoutPage() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-base">
                             <Package className="h-4 w-4" />
-                            주문 상품 ({items.length}개)
+                            주문 상품 ({checkoutItems.length}개)
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        {items.map((item) => (
+                        {checkoutItems.map((item) => (
                             <div key={item.cartItemId} className="flex items-center gap-4">
                                 {item.imageUrl ? (
                                     <img
@@ -102,7 +114,7 @@ export function CheckoutPage() {
                     <CardContent className="pt-6 space-y-3">
                         <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">상품 금액</span>
-                            <span>{formatPrice(totalPrice())}</span>
+                            <span>{formatPrice(checkoutTotalPrice)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">배송비</span>
@@ -111,7 +123,7 @@ export function CheckoutPage() {
                         <Separator />
                         <div className="flex justify-between font-bold text-lg">
                             <span>총 결제 금액</span>
-                            <span>{formatPrice(totalPrice())}</span>
+                            <span>{formatPrice(checkoutTotalPrice)}</span>
                         </div>
                     </CardContent>
                 </Card>
@@ -123,7 +135,7 @@ export function CheckoutPage() {
                     onClick={handleOrder}
                     disabled={isLoading}
                 >
-                    {isLoading ? '주문 처리 중...' : `${formatPrice(totalPrice())} 주문하기`}
+                    {isLoading ? '주문 처리 중...' : `${formatPrice(checkoutTotalPrice)} 주문하기`}
                 </Button>
             </div>
         </div>

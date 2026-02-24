@@ -7,3 +7,4 @@ export { MyAccountPage } from './MyAccountPage';
 export { BoardPage } from './BoardPage';
 export { BoardDetailPage } from './BoardDetailPage';
 export { CheckoutPage } from './CheckoutPage';
+export { OrderSuccessPage } from './OrderSuccessPage';

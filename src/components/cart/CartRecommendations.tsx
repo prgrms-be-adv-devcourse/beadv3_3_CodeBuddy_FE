@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cartService } from '@/services/cartService';
 import { useCartStore } from '@/stores/cartStore';
@@ -9,18 +9,22 @@ import { toast } from 'sonner';
 
 export function CartRecommendations() {
     const navigate = useNavigate();
-    const { addItem, setIsOpen, lastAddedCount } = useCartStore();
+    const { addItem, setIsOpen, lastAddedCount, items } = useCartStore();
     const [recommended, setRecommended] = useState<RecommendProductInfoResponse[]>([]);
+    const [isVisible, setIsVisible] = useState(false);
 
-    // 상품이 새로 장바구니에 추가될 때(lastAddedCount 증가)만 추천 호출
+    // 장바구니에 상품이 있을 때 && 새로 상품이 추가될 때만 추천 호출
     useEffect(() => {
-        if (lastAddedCount === 0) return;
+        if (lastAddedCount === 0 || items.length === 0) return;
         cartService.getRecommendedProducts()
-            .then(setRecommended)
+            .then((data) => {
+                if (data && data.length > 0) {
+                    setRecommended(data);
+                    setIsVisible(true);
+                }
+            })
             .catch(() => setRecommended([]));
     }, [lastAddedCount]);
-
-    if (recommended.length === 0) return null;
 
     const formatPrice = (price: number) =>
         new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(price);
@@ -48,10 +52,28 @@ export function CartRecommendations() {
         navigate(`/products/${productId}`);
     };
 
+    if (!isVisible || recommended.length === 0) return null;
+
     return (
-        <div className="mt-4">
-            <p className="text-sm font-semibold mb-3 text-muted-foreground">추천 상품</p>
-            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
+        <div className="mt-3 border-t pt-3">
+            {/* 헤더 */}
+            <div className="flex items-center justify-between mb-2 px-1">
+                <div>
+                    <p className="text-sm font-semibold">이 상품 어때세요? 👀</p>
+                    <p className="text-xs text-muted-foreground">함께 구매하면 좋아요</p>
+                </div>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 rounded-full flex-shrink-0"
+                    onClick={() => setIsVisible(false)}
+                >
+                    <X className="h-4 w-4" />
+                </Button>
+            </div>
+
+            {/* 추천 상품 가로 스크롤 */}
+            <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-none">
                 {recommended.map((product) => {
                     const imageUrl =
                         product.imageUrl ||
@@ -59,12 +81,9 @@ export function CartRecommendations() {
                     return (
                         <div
                             key={product.productId}
-                            className="flex-shrink-0 w-28 rounded-xl border bg-background shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+                            className="flex-shrink-0 w-28 rounded-xl border bg-card shadow-sm overflow-hidden hover:shadow-md transition-all"
                         >
-                            <button
-                                className="block w-full"
-                                onClick={() => handleGoToProduct(product.productId)}
-                            >
+                            <button className="block w-full" onClick={() => handleGoToProduct(product.productId)}>
                                 <img
                                     src={imageUrl}
                                     alt={product.productName}

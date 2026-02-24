@@ -37,8 +37,8 @@ export function CartSheet() {
 
     return (
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
-            <SheetContent className="w-full sm:max-w-md flex flex-col px-3">
-                <SheetHeader>
+            <SheetContent className="w-full sm:max-w-lg flex flex-col px-2">
+                <SheetHeader className="px-4">
                     <SheetTitle className="flex items-center gap-2">
                         <ShoppingCart className="h-5 w-5" />
                         장바구니
@@ -51,7 +51,7 @@ export function CartSheet() {
                 </SheetHeader>
 
                 {items.length === 0 ? (
-                    <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
+                    <div className="flex-1 flex flex-col items-center justify-center text-center py-12 px-4">
                         <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mb-6">
                             <ShoppingBag className="h-10 w-10 text-muted-foreground" />
                         </div>
@@ -65,17 +65,16 @@ export function CartSheet() {
                     </div>
                 ) : (
                     <>
-                        <ScrollArea className="flex-1 -mx-6 px-6">
+                        <ScrollArea className="flex-1 px-4">
                             <div className="space-y-2">
                                 {items.map((item) => (
                                     <CartItem key={item.cartItemId} item={item} />
                                 ))}
                             </div>
+                            <CartRecommendations />
                         </ScrollArea>
 
-                        <CartRecommendations />
-
-                        <div className="mt-auto pt-4">
+                        <div className="mt-auto pt-4 px-4">
                             <Separator className="mb-4" />
 
                             <div className="space-y-3">
