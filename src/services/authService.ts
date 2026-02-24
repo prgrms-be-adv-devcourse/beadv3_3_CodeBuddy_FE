@@ -12,7 +12,19 @@ export const authService = {
 
     // 로그인
     login: async (request: LoginRequest): Promise<{ accessToken: string; refreshToken: string }> => {
-        const response = await api.post<{ accessToken: string; refreshToken: string }>(`${AUTH_BASE}/auth/login`, request);
+        const params = new URLSearchParams();
+        params.append('memberId', request.memberId);
+        params.append('password', request.password);
+
+        const response = await api.post<{ accessToken: string; refreshToken: string }>(
+            `${AUTH_BASE}/auth/login`,
+            params,
+            {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+            }
+        );
         return response.data;
     },
 

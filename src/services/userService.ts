@@ -19,10 +19,5 @@ export const userService = {
     // 회원 탈퇴
     deleteMe: async () => {
         await api.delete(`${MEMBER_BASE}/me`);
-    },
-
-    // 판매자 권한 신청
-    registerSellerRole: async () => {
-        await api.post(`${MEMBER_BASE}/me/seller`);
     }
 };
