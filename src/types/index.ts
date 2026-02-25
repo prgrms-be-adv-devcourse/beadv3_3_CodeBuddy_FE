@@ -30,7 +30,7 @@ export interface ProductCreateRequest {
     productPrice: number;
     productStock: number;
     imgUrl?: string;
-    category: Category;
+    categoryCode: Category;
 }
 
 export interface UpdateProductRequest {
@@ -168,5 +168,36 @@ export interface UpsertStoreRequest {
 
 export interface UpdateStoreRequest {
     storeName: string;
+}
+
+// ============================
+// Pay / Deposit Types
+// ============================
+export type AccountHistoryType = 'CHARGE' | 'USE' | 'REFUND';
+
+export interface AccountBalanceResponse {
+    balance: number;
+}
+
+export interface AccountHistoryResponse {
+    id: number;
+    type: AccountHistoryType;
+    amount: number;
+    createdAt: string;
+    description?: string;
+}
+
+export interface PaymentResponse {
+    paymentId: number;
+    orderId: number;
+    amount: number;
+    status: string;
+    createdAt: string;
+}
+
+export interface PaymentConfirmRequest {
+    paymentKey: string;
+    orderId: string;
+    amount: number;
 }
 

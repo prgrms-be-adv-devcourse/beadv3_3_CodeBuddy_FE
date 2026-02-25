@@ -13,6 +13,8 @@ import {
   BoardDetailPage,
   CheckoutPage,
   OrderSuccessPage,
+  DepositChargePage,
+  DepositSuccessPage,
 } from '@/pages';
 import { OAuthCallbackPage } from '@/pages/OAuthCallbackPage';
 
@@ -44,6 +46,8 @@ function App() {
             <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/orders/:orderId" element={<OrderSuccessPage />} />
+            <Route path="/deposit" element={<DepositChargePage />} />
+            <Route path="/deposit/success" element={<DepositSuccessPage />} />
           </Route>
         </Routes>
       </Router>
