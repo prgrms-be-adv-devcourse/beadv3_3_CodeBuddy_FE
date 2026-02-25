@@ -53,9 +53,9 @@ export function ProductDetailPage() {
     const getCategoryLabel = (category: string) => {
         switch (category) {
             case 'TOP':
-                return 'Tops';
+                return '상의';
             case 'PANTS':
-                return 'Bottoms';
+                return '하의';
             default:
                 return category;
         }
@@ -65,7 +65,7 @@ export function ProductDetailPage() {
         if (!product) return;
 
         if (!isAuthenticated) {
-            toast.error('Please login to add items to cart');
+            toast.error('장바구니에 담으려면 로그인해주세요');
             navigate('/login');
             return;
         }
@@ -85,7 +85,7 @@ export function ProductDetailPage() {
                 imageUrl: product.imageUrl,
             });
 
-            toast.success(`${product.productName} added to cart`);
+            toast.success(`${product.productName} 장바구니에 담았습니다`);
             setIsOpen(true);
         } catch (error) {
             addItem({
@@ -96,9 +96,33 @@ export function ProductDetailPage() {
                 cartPrice: product.productPrice,
                 imageUrl: product.imageUrl,
             });
-            toast.success(`${product.productName} added to cart`);
+            toast.success(`${product.productName} 장바구니에 담았습니다`);
             setIsOpen(true);
         }
+    };
+
+    const handleOrderNow = async () => {
+        if (!product) return;
+
+        if (!isAuthenticated) {
+            toast.error('주문하려면 로그인해주세요');
+            navigate('/login');
+            return;
+        }
+
+        // 바로 구매 시 결제 페이지로 상품 정보와 함께 이동
+        navigate('/checkout', {
+            state: {
+                buyNowItem: {
+                    cartItemId: Date.now(), // 임시 ID
+                    productId: product.productId,
+                    productName: product.productName,
+                    cartCount: 1,
+                    cartPrice: product.productPrice,
+                    imageUrl: product.imageUrl,
+                }
+            }
+        });
     };
 
     if (isLoading) {
@@ -122,12 +146,12 @@ export function ProductDetailPage() {
     if (!product) {
         return (
             <div className="container mx-auto px-4 py-20 text-center">
-                <h2 className="text-2xl font-semibold mb-4">Product not found</h2>
+                <h2 className="text-2xl font-semibold mb-4">상품을 찾을 수 없습니다</h2>
                 <p className="text-muted-foreground mb-6">
-                    The product you're looking for doesn't exist or has been removed.
+                    요청하신 상품이 존재하지 않거나 삭제되었습니다.
                 </p>
                 <Button asChild>
-                    <Link to="/products">Back to Products</Link>
+                    <Link to="/products">상품 목록으로</Link>
                 </Button>
             </div>
         );
@@ -144,7 +168,7 @@ export function ProductDetailPage() {
                 className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-8 transition-colors"
             >
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Products
+                상품 목록으로
             </Link>
 
             <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
@@ -160,13 +184,13 @@ export function ProductDetailPage() {
                             variant="destructive"
                             className="absolute top-4 left-4"
                         >
-                            Only {product.productStock} left
+                            {product.productStock}개 남음
                         </Badge>
                     )}
                     {product.productStock === 0 && (
                         <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                             <Badge variant="secondary" className="text-xl px-6 py-3">
-                                Out of Stock
+                                품절
                             </Badge>
                         </div>
                     )}
@@ -193,7 +217,7 @@ export function ProductDetailPage() {
                                 <Store className="h-6 w-6 text-primary" />
                             </div>
                             <div>
-                                <p className="text-sm text-muted-foreground">Sold by</p>
+                                <p className="text-sm text-muted-foreground">판매자</p>
                                 <p className="font-semibold">{product.storeName}</p>
                             </div>
                         </div>
@@ -204,33 +228,44 @@ export function ProductDetailPage() {
                         <Tag className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm">
                             {product.productStock > 0
-                                ? `${product.productStock} items in stock`
-                                : 'Currently out of stock'}
+                                ? `재고 ${product.productStock}개`
+                                : '현재 품절'}
                         </span>
                     </div>
 
                     {/* Description Placeholder */}
                     <div>
-                        <h3 className="font-semibold mb-2">Description</h3>
+                        <h3 className="font-semibold mb-2">상품 설명</h3>
                         <p className="text-muted-foreground">
-                            Premium quality clothing made with the finest materials.
-                            Perfect for any occasion, this piece combines style and comfort
-                            for the modern wardrobe. Easy to care for and designed to last.
+                            최고급 소재로 제작된 프리미엄 의류입니다.
+                            어떤 상황에도 어울리며, 스타일과 편안함을 모두 갖추었습니다.
+                            관리가 쉽고 오래 입을 수 있도록 디자인되었습니다.
                         </p>
                     </div>
 
                     <Separator />
 
-                    {/* Add to Cart */}
-                    <Button
-                        size="lg"
-                        className="w-full text-lg h-14"
-                        onClick={handleAddToCart}
-                        disabled={product.productStock === 0}
-                    >
-                        <ShoppingCart className="h-5 w-5 mr-2" />
-                        {product.productStock === 0 ? 'Out of Stock' : 'Add to Cart'}
-                    </Button>
+                    {/* Actions */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <Button
+                            variant="outline"
+                            size="lg"
+                            className="text-lg h-14"
+                            onClick={handleAddToCart}
+                            disabled={product.productStock === 0}
+                        >
+                            <ShoppingCart className="h-5 w-5 mr-2" />
+                            장바구니
+                        </Button>
+                        <Button
+                            size="lg"
+                            className="text-lg h-14"
+                            onClick={handleOrderNow}
+                            disabled={product.productStock === 0}
+                        >
+                            {product.productStock === 0 ? '품절' : '바로 구매하기'}
+                        </Button>
+                    </div>
                 </div>
             </div>
         </div>

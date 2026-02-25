@@ -27,9 +27,9 @@ export function ProductCard({ product }: ProductCardProps) {
     const getCategoryLabel = (category: string) => {
         switch (category) {
             case 'TOP':
-                return 'Tops';
+                return '상의';
             case 'PANTS':
-                return 'Bottoms';
+                return '하의';
             default:
                 return category;
         }
@@ -40,7 +40,7 @@ export function ProductCard({ product }: ProductCardProps) {
         e.stopPropagation();
 
         if (!isAuthenticated) {
-            toast.error('Please login to add items to cart');
+            toast.error('장바구니에 담으려면 로그인해주세요');
             return;
         }
 
@@ -59,7 +59,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 imageUrl: product.imageUrl,
             });
 
-            toast.success(`${product.productName} added to cart`);
+            toast.success(`${product.productName} 장바구니에 담았습니다`);
             setIsOpen(true);
         } catch (error) {
             // 로컬에서 동작하도록 fallback
@@ -71,7 +71,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 cartPrice: product.productPrice,
                 imageUrl: product.imageUrl,
             });
-            toast.success(`${product.productName} added to cart`);
+            toast.success(`${product.productName} 장바구니에 담았습니다`);
             setIsOpen(true);
         }
     };
@@ -98,13 +98,13 @@ export function ProductCard({ product }: ProductCardProps) {
                             variant="destructive"
                             className="absolute top-3 left-3"
                         >
-                            Only {product.productStock} left
+                            {product.productStock}개 남음
                         </Badge>
                     )}
                     {product.productStock === 0 && (
                         <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                             <Badge variant="secondary" className="text-lg px-4 py-2">
-                                Out of Stock
+                                품절
                             </Badge>
                         </div>
                     )}
@@ -118,7 +118,7 @@ export function ProductCard({ product }: ProductCardProps) {
                             disabled={product.productStock === 0}
                         >
                             <ShoppingCart className="h-4 w-4 mr-2" />
-                            Add to Cart
+                            장바구니 담기
                         </Button>
                     </div>
                 </div>

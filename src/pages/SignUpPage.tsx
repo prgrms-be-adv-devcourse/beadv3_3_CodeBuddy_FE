@@ -34,12 +34,10 @@ export function SignUpPage() {
         try {
             const { confirmPassword, ...signUpData } = data;
             await authService.signUp(signUpData);
-            toast.success('Account created successfully! Please login.');
+            toast.success('회원가입이 완료되었습니다! 로그인해주세요.');
             navigate('/login');
         } catch (error) {
-            // Mock 회원가입 성공 (백엔드 없을 때)
-            toast.success('Account created successfully! Please login.');
-            navigate('/login');
+            toast.error('회원가입에 실패했습니다. 잠시 후 다시 시도해주세요.');
         } finally {
             setIsLoading(false);
         }
@@ -49,9 +47,9 @@ export function SignUpPage() {
         <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
             <Card className="w-full max-w-md">
                 <CardHeader className="text-center">
-                    <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
+                    <CardTitle className="text-2xl font-bold">회원가입</CardTitle>
                     <CardDescription>
-                        Enter your details to get started
+                        정보를 입력하고 시작하세요
                     </CardDescription>
                 </CardHeader>
 
@@ -60,13 +58,13 @@ export function SignUpPage() {
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label htmlFor="username" className="text-sm font-medium">
-                                    Name
+                                    이름
                                 </label>
                                 <Input
                                     id="username"
-                                    placeholder="Your name"
+                                    placeholder="이름"
                                     {...register('username', {
-                                        required: 'Name is required',
+                                        required: '이름을 입력해주세요',
                                     })}
                                 />
                                 {errors.username && (
@@ -76,14 +74,14 @@ export function SignUpPage() {
 
                             <div className="space-y-2">
                                 <label htmlFor="memberId" className="text-sm font-medium">
-                                    Username
+                                    아이디
                                 </label>
                                 <Input
                                     id="memberId"
-                                    placeholder="Username"
+                                    placeholder="아이디"
                                     {...register('memberId', {
-                                        required: 'Username is required',
-                                        minLength: { value: 4, message: 'Min 4 characters' }
+                                        required: '아이디를 입력해주세요',
+                                        minLength: { value: 4, message: '최소 4자 이상' }
                                     })}
                                 />
                                 {errors.memberId && (
@@ -94,17 +92,17 @@ export function SignUpPage() {
 
                         <div className="space-y-2">
                             <label htmlFor="email" className="text-sm font-medium">
-                                Email
+                                이메일
                             </label>
                             <Input
                                 id="email"
                                 type="email"
-                                placeholder="you@example.com"
+                                placeholder="example@email.com"
                                 {...register('email', {
-                                    required: 'Email is required',
+                                    required: '이메일을 입력해주세요',
                                     pattern: {
                                         value: /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
-                                        message: 'Invalid email format'
+                                        message: '올바른 이메일 형식이 아닙니다'
                                     }
                                 })}
                             />
@@ -115,19 +113,19 @@ export function SignUpPage() {
 
                         <div className="space-y-2">
                             <label htmlFor="password" className="text-sm font-medium">
-                                Password
+                                비밀번호
                             </label>
                             <div className="relative">
                                 <Input
                                     id="password"
                                     type={showPassword ? 'text' : 'password'}
-                                    placeholder="Min 8 characters"
+                                    placeholder="8자 이상"
                                     {...register('password', {
-                                        required: 'Password is required',
-                                        minLength: { value: 8, message: 'Password must be at least 8 characters' },
+                                        required: '비밀번호를 입력해주세요',
+                                        minLength: { value: 8, message: '비밀번호는 최소 8자 이상이어야 합니다' },
                                         pattern: {
                                             value: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/,
-                                            message: 'Must include letter, number, and special character'
+                                            message: '영문, 숫자, 특수문자를 포함해야 합니다'
                                         }
                                     })}
                                 />
@@ -152,15 +150,15 @@ export function SignUpPage() {
 
                         <div className="space-y-2">
                             <label htmlFor="confirmPassword" className="text-sm font-medium">
-                                Confirm Password
+                                비밀번호 확인
                             </label>
                             <Input
                                 id="confirmPassword"
                                 type="password"
-                                placeholder="Confirm your password"
+                                placeholder="비밀번호 재입력"
                                 {...register('confirmPassword', {
-                                    required: 'Please confirm your password',
-                                    validate: value => value === password || 'Passwords do not match'
+                                    required: '비밀번호를 다시 입력해주세요',
+                                    validate: value => value === password || '비밀번호가 일치하지 않습니다'
                                 })}
                             />
                             {errors.confirmPassword && (
@@ -170,16 +168,16 @@ export function SignUpPage() {
 
                         <div className="space-y-2">
                             <label htmlFor="phone" className="text-sm font-medium">
-                                Phone
+                                전화번호
                             </label>
                             <Input
                                 id="phone"
                                 placeholder="010-1234-5678"
                                 {...register('phone', {
-                                    required: 'Phone is required',
+                                    required: '전화번호를 입력해주세요',
                                     pattern: {
                                         value: /^\d{2,3}-\d{3,4}-\d{4}$/,
-                                        message: 'Format: 010-1234-5678'
+                                        message: '형식: 010-1234-5678'
                                     }
                                 })}
                             />
@@ -190,13 +188,13 @@ export function SignUpPage() {
 
                         <div className="space-y-2">
                             <label htmlFor="address" className="text-sm font-medium">
-                                Address
+                                주소
                             </label>
                             <Input
                                 id="address"
-                                placeholder="Your address"
+                                placeholder="주소를 입력하세요"
                                 {...register('address', {
-                                    required: 'Address is required',
+                                    required: '주소를 입력해주세요',
                                 })}
                             />
                             {errors.address && (
@@ -205,14 +203,14 @@ export function SignUpPage() {
                         </div>
 
                         <Button type="submit" className="w-full" disabled={isLoading}>
-                            {isLoading ? 'Creating account...' : 'Create account'}
+                            {isLoading ? '가입 처리 중...' : '회원가입'}
                         </Button>
                     </form>
 
                     <div className="relative my-6">
                         <Separator />
                         <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-2 text-xs text-muted-foreground">
-                            or continue with
+                            또는 소셜 가입
                         </span>
                     </div>
 
@@ -235,15 +233,15 @@ export function SignUpPage() {
                                 fill="#EA4335"
                             />
                         </svg>
-                        Continue with Google
+                        Google로 계속하기
                     </Button>
                 </CardContent>
 
                 <CardFooter className="justify-center">
                     <p className="text-sm text-muted-foreground">
-                        Already have an account?{' '}
+                        이미 계정이 있으신가요?{' '}
                         <Link to="/login" className="font-medium text-primary hover:underline">
-                            Sign in
+                            로그인
                         </Link>
                     </p>
                 </CardFooter>

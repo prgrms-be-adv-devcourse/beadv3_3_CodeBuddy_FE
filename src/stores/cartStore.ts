@@ -5,6 +5,7 @@ import type { CartItem } from '@/types';
 interface CartState {
     items: CartItem[];
     isOpen: boolean;
+    lastAddedCount: number; // 아이템 추가될 때마다 증가 → 추천 트리거
 
     // Computed
     totalItems: () => number;
@@ -25,6 +26,7 @@ export const useCartStore = create<CartState>()(
         (set, get) => ({
             items: [],
             isOpen: false,
+            lastAddedCount: 0,
 
             totalItems: () => {
                 return get().items.reduce((sum, item) => sum + item.cartCount, 0);
@@ -49,16 +51,18 @@ export const useCartStore = create<CartState>()(
                     };
                     set({ items: updatedItems });
                 } else {
-                    set({ items: [...currentItems, item] });
+                    set({ items: [...currentItems, item], lastAddedCount: get().lastAddedCount + 1 });
                 }
             },
 
             updateItemQuantity: (cartItemId, quantity) => {
-                const updatedItems = get().items.map(item =>
-                    item.cartItemId === cartItemId
-                        ? { ...item, cartCount: quantity }
-                        : item
-                );
+                const updatedItems = get().items.map(item => {
+                    if (item.cartItemId === cartItemId) {
+                        const unitPrice = item.cartPrice / item.cartCount;
+                        return { ...item, cartCount: quantity, cartPrice: unitPrice * quantity };
+                    }
+                    return item;
+                });
                 set({ items: updatedItems });
             },
 

@@ -16,6 +16,15 @@ export interface ProductResponse {
     imageUrl?: string;
 }
 
+export interface RecommendProductInfoResponse {
+    productId: number;
+    productName: string;
+    productPrice: number;
+    imageUrl?: string;
+    storeName: string;
+    categoryCode: string;
+}
+
 export interface ProductCreateRequest {
     productName: string;
     productPrice: number;

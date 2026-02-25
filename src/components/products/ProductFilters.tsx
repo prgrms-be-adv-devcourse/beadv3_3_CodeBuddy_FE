@@ -11,9 +11,9 @@ interface ProductFiltersProps {
 }
 
 const categories: { label: string; value: Category | 'ALL' }[] = [
-    { label: 'All', value: 'ALL' },
-    { label: 'Tops', value: 'TOP' },
-    { label: 'Bottoms', value: 'PANTS' },
+    { label: '전체', value: 'ALL' },
+    { label: '상의', value: 'TOP' },
+    { label: '하의', value: 'PANTS' },
 ];
 
 export function ProductFilters({
@@ -29,7 +29,7 @@ export function ProductFilters({
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                     type="text"
-                    placeholder="Search products..."
+                    placeholder="상품 검색..."
                     value={searchQuery}
                     onChange={(e) => onSearchChange(e.target.value)}
                     className="pl-10"

@@ -1,5 +1,5 @@
 import api from '@/lib/axios';
-import type { CartItem, CartCreateRequest } from '@/types';
+import type { CartItem, CartCreateRequest, RecommendProductInfoResponse } from '@/types';
 
 const CART_BASE = '/api/v1/carts';
 
@@ -26,6 +26,12 @@ export const cartService = {
     // 장바구니 상품 삭제
     deleteCartItem: async (cartItemId: number): Promise<void> => {
         await api.delete(`${CART_BASE}/items/${cartItemId}`);
+    },
+
+    // 장바구니 기반 상품 추천
+    getRecommendedProducts: async (): Promise<RecommendProductInfoResponse[]> => {
+        const response = await api.get<{ message: string; data: RecommendProductInfoResponse[] }>(`${CART_BASE}/recommend/items`);
+        return response.data.data;
     },
 };
 

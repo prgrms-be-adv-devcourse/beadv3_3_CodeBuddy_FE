@@ -4,3 +4,7 @@ export { ProductDetailPage } from './ProductDetailPage';
 export { LoginPage } from './LoginPage';
 export { SignUpPage } from './SignUpPage';
 export { MyAccountPage } from './MyAccountPage';
+export { BoardPage } from './BoardPage';
+export { BoardDetailPage } from './BoardDetailPage';
+export { CheckoutPage } from './CheckoutPage';
+export { OrderSuccessPage } from './OrderSuccessPage';

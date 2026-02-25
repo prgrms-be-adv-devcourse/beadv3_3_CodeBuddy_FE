@@ -9,9 +9,10 @@ import { useCartStore } from '@/stores/cartStore';
 import { cn } from '@/lib/utils';
 
 const navLinks = [
-    { name: 'Products', path: '/products' },
-    { name: 'Tops', path: '/products?category=TOP' },
-    { name: 'Bottoms', path: '/products?category=PANTS' },
+    { name: '전체 상품', path: '/products' },
+    { name: '상의', path: '/products?category=TOP' },
+    { name: '바지', path: '/products?category=PANTS' },
+    { name: '게시판', path: '/board' },
 ];
 
 export function Header() {
@@ -31,7 +32,7 @@ export function Header() {
                         to="/"
                         className="flex items-center space-x-2 text-xl font-bold tracking-tight hover:opacity-80 transition-opacity"
                     >
-                        <span>Fashion Store</span>
+                        <span>ClosetBuddy</span>
                     </Link>
 
                     {/* Desktop Navigation */}
@@ -79,20 +80,20 @@ export function Header() {
                                 <Button variant="ghost" size="sm" asChild>
                                     <Link to="/account">
                                         <User className="h-4 w-4 mr-2" />
-                                        My Account
+                                        계정
                                     </Link>
                                 </Button>
                                 <Button variant="outline" size="sm" onClick={logout}>
-                                    Logout
+                                    로그아웃
                                 </Button>
                             </div>
                         ) : (
                             <div className="hidden md:flex items-center space-x-2">
                                 <Button variant="ghost" size="sm" asChild>
-                                    <Link to="/login">Login</Link>
+                                    <Link to="/login">로그인</Link>
                                 </Button>
                                 <Button size="sm" asChild>
-                                    <Link to="/signup">Sign Up</Link>
+                                    <Link to="/signup">회원가입</Link>
                                 </Button>
                             </div>
                         )}
@@ -136,14 +137,14 @@ export function Header() {
                                                 onClick={() => setMobileMenuOpen(false)}
                                                 className="text-lg font-medium px-4 py-2 rounded-lg hover:bg-muted"
                                             >
-                                                My Account
+                                                계정
                                             </Link>
                                             <Link
                                                 to="/orders"
                                                 onClick={() => setMobileMenuOpen(false)}
                                                 className="text-lg font-medium px-4 py-2 rounded-lg hover:bg-muted"
                                             >
-                                                My Orders
+                                                내 주문
                                             </Link>
                                             <Button
                                                 variant="outline"
@@ -153,7 +154,7 @@ export function Header() {
                                                     setMobileMenuOpen(false);
                                                 }}
                                             >
-                                                Logout
+                                                로그아웃
                                             </Button>
                                         </>
                                     ) : (
@@ -163,13 +164,13 @@ export function Header() {
                                                 onClick={() => setMobileMenuOpen(false)}
                                                 className="text-lg font-medium px-4 py-2 rounded-lg hover:bg-muted"
                                             >
-                                                Login
+                                                로그인
                                             </Link>
                                             <Link
                                                 to="/signup"
                                                 onClick={() => setMobileMenuOpen(false)}
                                             >
-                                                <Button className="w-full mx-4">Sign Up</Button>
+                                                <Button className="w-full mx-4">회원가입</Button>
                                             </Link>
                                         </>
                                     )}

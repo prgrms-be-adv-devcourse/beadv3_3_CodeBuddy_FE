@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useAuthStore } from '@/stores/authStore';
+import { authService } from '@/services/authService';
+import { userService } from '@/services/userService';
 import { toast } from 'sonner';
 import type { LoginRequest } from '@/types';
 
@@ -26,28 +28,22 @@ export function LoginPage() {
     const onSubmit = async (data: LoginRequest) => {
         setIsLoading(true);
         try {
-            // 실제 로그인 API 호출 (백엔드 연동 시)
-            // const response = await authService.login(data);
+            // 1단계: 로그인 → accessToken, refreshToken 획득
+            const { accessToken, refreshToken } = await authService.login(data);
 
-            // Mock 로그인 (데모용)
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            // 2단계: 토큰 저장
+            localStorage.setItem('accessToken', accessToken);
+            if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
 
-            // Mock 사용자 데이터
-            const mockUser = {
-                id: 1,
-                memberId: data.memberId,
-                name: data.memberId,
-                email: `${data.memberId}@example.com`,
-                address: 'Seoul, Korea',
-                phone: '010-1234-5678',
-                role: 'USER',
-            };
+            // 3단계: 내 정보 조회
+            const me = await userService.getMe();
 
-            setAuth(mockUser, 'mock-jwt-token');
-            toast.success('Welcome back!');
+            // 4단계: authStore에 인증 상태 저장
+            setAuth(me, accessToken);
+            toast.success('로그인에 성공했습니다!');
             navigate('/');
         } catch (error) {
-            toast.error('Invalid credentials. Please try again.');
+            toast.error('아이디 또는 비밀번호가 올바르지 않습니다.');
         } finally {
             setIsLoading(false);
         }
@@ -57,9 +53,9 @@ export function LoginPage() {
         <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
             <Card className="w-full max-w-md">
                 <CardHeader className="text-center">
-                    <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
+                    <CardTitle className="text-2xl font-bold">로그인</CardTitle>
                     <CardDescription>
-                        Enter your credentials to access your account
+                        계정에 로그인하세요
                     </CardDescription>
                 </CardHeader>
 
@@ -67,15 +63,15 @@ export function LoginPage() {
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                         <div className="space-y-2">
                             <label htmlFor="memberId" className="text-sm font-medium">
-                                Username
+                                아이디
                             </label>
                             <Input
                                 id="memberId"
                                 type="text"
-                                placeholder="Enter your username"
+                                placeholder="아이디를 입력하세요"
                                 {...register('memberId', {
-                                    required: 'Username is required',
-                                    minLength: { value: 4, message: 'Username must be at least 4 characters' }
+                                    required: '아이디를 입력해주세요',
+                                    minLength: { value: 4, message: '아이디는 최소 4자 이상이어야 합니다' }
                                 })}
                             />
                             {errors.memberId && (
@@ -85,15 +81,15 @@ export function LoginPage() {
 
                         <div className="space-y-2">
                             <label htmlFor="password" className="text-sm font-medium">
-                                Password
+                                비밀번호
                             </label>
                             <div className="relative">
                                 <Input
                                     id="password"
                                     type={showPassword ? 'text' : 'password'}
-                                    placeholder="Enter your password"
+                                    placeholder="비밀번호를 입력하세요"
                                     {...register('password', {
-                                        required: 'Password is required',
+                                        required: '비밀번호를 입력해주세요',
                                     })}
                                 />
                                 <Button
@@ -116,14 +112,14 @@ export function LoginPage() {
                         </div>
 
                         <Button type="submit" className="w-full" disabled={isLoading}>
-                            {isLoading ? 'Signing in...' : 'Sign in'}
+                            {isLoading ? '로그인 중...' : '로그인'}
                         </Button>
                     </form>
 
                     <div className="relative my-6">
                         <Separator />
                         <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-2 text-xs text-muted-foreground">
-                            or continue with
+                            또는 소셜 로그인
                         </span>
                     </div>
 
@@ -131,8 +127,8 @@ export function LoginPage() {
                         variant="outline"
                         className="w-full"
                         onClick={() => {
-                            // Google OAuth2 로그인 시작 - user-service로 직접 이동
-                            window.location.href = 'http://localhost:8085/oauth2/authorization/google';
+                            // Google OAuth2 로그인 시작 - Gateway 경유
+                            window.location.href = 'http://localhost:8090/oauth2/authorization/google';
                         }}
                     >
                         <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -153,15 +149,15 @@ export function LoginPage() {
                                 fill="#EA4335"
                             />
                         </svg>
-                        Continue with Google
+                        Google로 계속하기
                     </Button>
                 </CardContent>
 
                 <CardFooter className="justify-center">
                     <p className="text-sm text-muted-foreground">
-                        Don't have an account?{' '}
+                        계정이 없으신가요?{' '}
                         <Link to="/signup" className="font-medium text-primary hover:underline">
-                            Sign up
+                            회원가입
                         </Link>
                     </p>
                 </CardFooter>

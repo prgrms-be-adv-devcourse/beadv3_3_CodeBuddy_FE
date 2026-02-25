@@ -35,11 +35,11 @@ export function CartItem({ item }: CartItemProps) {
         try {
             await cartService.deleteCartItem(item.cartItemId);
             removeItem(item.cartItemId);
-            toast.success('Item removed from cart');
+            toast.success('장바구니에서 삭제되었습니다');
         } catch (error) {
             // 로컬에서 동작하도록 fallback
             removeItem(item.cartItemId);
-            toast.success('Item removed from cart');
+            toast.success('장바구니에서 삭제되었습니다');
         }
     };
 
@@ -61,7 +61,7 @@ export function CartItem({ item }: CartItemProps) {
             <div className="flex-1 min-w-0">
                 <h4 className="font-medium truncate">{item.productName}</h4>
                 <p className="text-sm text-muted-foreground">
-                    {formatPrice(item.cartPrice / item.cartCount)} each
+                    {formatPrice(item.cartPrice / item.cartCount)} 개당
                 </p>
 
                 {/* Quantity Controls */}
