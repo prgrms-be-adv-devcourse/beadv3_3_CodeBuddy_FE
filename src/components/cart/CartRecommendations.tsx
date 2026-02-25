@@ -9,22 +9,32 @@ import { toast } from 'sonner';
 
 export function CartRecommendations() {
     const navigate = useNavigate();
-    const { addItem, setIsOpen, lastAddedCount, items } = useCartStore();
+    const { addItem, setIsOpen, isOpen, items } = useCartStore();
     const [recommended, setRecommended] = useState<RecommendProductInfoResponse[]>([]);
     const [isVisible, setIsVisible] = useState(false);
 
-    // 장바구니에 상품이 있을 때 && 새로 상품이 추가될 때만 추천 호출
+    // 장바구니가 열릴 때마다 (isOpen: false→true) + 상품이 있을 때만 추천 호출
     useEffect(() => {
-        if (lastAddedCount === 0 || items.length === 0) return;
+        if (!isOpen || items.length === 0) {
+            // 장바구니 닫힐 때 팝업도 숨김 (다음 오픈 시 새로 로드)
+            setIsVisible(false);
+            return;
+        }
         cartService.getRecommendedProducts()
             .then((data) => {
                 if (data && data.length > 0) {
                     setRecommended(data);
                     setIsVisible(true);
+                } else {
+                    setRecommended([]);
+                    setIsVisible(false);
                 }
             })
-            .catch(() => setRecommended([]));
-    }, [lastAddedCount]);
+            .catch(() => {
+                setRecommended([]);
+                setIsVisible(false);
+            });
+    }, [isOpen]);
 
     const formatPrice = (price: number) =>
         new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(price);
