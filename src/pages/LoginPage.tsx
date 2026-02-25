@@ -127,8 +127,8 @@ export function LoginPage() {
                         variant="outline"
                         className="w-full"
                         onClick={() => {
-                            // Google OAuth2 로그인 시작 - Gateway 경유
-                            window.location.href = 'http://localhost:8090/oauth2/authorization/google';
+                            // Google OAuth2 로그인 시작 - Vite 프록시 → Gateway 경유
+                            window.location.href = '/oauth2/authorization/google';
                         }}
                     >
                         <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">

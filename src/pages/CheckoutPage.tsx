@@ -51,13 +51,23 @@ export function CheckoutPage() {
         }
         setIsLoading(true);
         try {
-            const orderItems = checkoutItems.map(item => ({
-                productId: item.productId,
-                orderCount: item.cartCount,
-            }));
-            const orderId = await orderService.createOrder({ orderItems });
+            let orderId: number;
 
-            if (!buyNowItem) {
+            if (buyNowItem) {
+                // 바로 구매: POST /api/v1/orders (orderItems 배열로 요청)
+                orderId = await orderService.createOrder({
+                    orderItems: [{
+                        productId: buyNowItem.productId,
+                        orderCount: buyNowItem.cartCount,
+                    }],
+                });
+            } else {
+                // 장바구니 주문: 각 cartItem마다 POST /api/v1/orders/cart/{cartItemId}
+                let lastOrderId = 0;
+                for (const item of checkoutItems) {
+                    lastOrderId = await orderService.createOrderFromCart(item.cartItemId);
+                }
+                orderId = lastOrderId;
                 clearCart();
             }
 
@@ -70,6 +80,7 @@ export function CheckoutPage() {
             setIsLoading(false);
         }
     };
+
 
     return (
         <div className="min-h-screen bg-background">

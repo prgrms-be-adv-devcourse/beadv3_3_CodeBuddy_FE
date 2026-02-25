@@ -19,6 +19,17 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      // Proxy OAuth2 requests to the Gateway
+      '/oauth2': {
+        target: 'http://localhost:8090',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/login/oauth2': {
+        target: 'http://localhost:8090',
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 })

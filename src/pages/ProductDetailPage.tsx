@@ -73,7 +73,7 @@ export function ProductDetailPage() {
         try {
             const cartItemId = await cartService.addToCart({
                 productId: product.productId,
-                cartCount: 1,
+                productCount: 1,
             });
 
             addItem({

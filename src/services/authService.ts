@@ -10,20 +10,15 @@ export const authService = {
         return response.data;
     },
 
-    // 로그인
+    // 로그인 (백엔드: Spring Security formLogin → form-urlencoded 방식)
     login: async (request: LoginRequest): Promise<{ accessToken: string; refreshToken: string }> => {
-        const params = new URLSearchParams();
-        params.append('memberId', request.memberId);
-        params.append('password', request.password);
-
+        const formData = new URLSearchParams();
+        formData.append('memberId', request.memberId);
+        formData.append('password', request.password);
         const response = await api.post<{ accessToken: string; refreshToken: string }>(
             `${AUTH_BASE}/auth/login`,
-            params,
-            {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-            }
+            formData,
+            { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
         );
         return response.data;
     },

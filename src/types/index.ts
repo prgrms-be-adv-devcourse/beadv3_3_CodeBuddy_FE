@@ -46,7 +46,7 @@ export interface UpdateProductRequest {
 // ============================
 export interface CartCreateRequest {
     productId: number;
-    cartCount: number;
+    productCount: number;
 }
 
 export interface CartItem {

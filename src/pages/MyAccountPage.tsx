@@ -371,6 +371,20 @@ export function MyAccountPage() {
         onError: () => toast.error('판매자 등록 실패'),
     });
 
+    const unregisterSellerMutation = useMutation({
+        mutationFn: sellerService.unregister,
+        onSuccess: async () => {
+            toast.success('일반 회원으로 전환되었습니다.');
+            queryClient.invalidateQueries({ queryKey: ['my-seller'] });
+            // 역할 변경 후 me 다시 조회하여 authStore 갱신
+            const me = await userService.getMe();
+            updateUser(me);
+            queryClient.invalidateQueries({ queryKey: ['me'] });
+            setActiveTab('profile');
+        },
+        onError: () => toast.error('역할 전환 실패'),
+    });
+
     // Stores
     const { data: myStores } = useQuery({
         queryKey: ['my-stores'],
@@ -410,7 +424,7 @@ export function MyAccountPage() {
     };
 
     return (
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-8 max-w-2xl">
             <h1 className="text-3xl font-bold mb-8">내 계정</h1>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -480,6 +494,25 @@ export function MyAccountPage() {
                                         현재 판매자로 활동 중: <strong>{sellerInfo.sellerName}</strong>
                                     </div>
                                     <p className="text-muted-foreground">상점 탭에서 상점과 상품을 관리할 수 있습니다.</p>
+                                    <Separator />
+                                    <div>
+                                        <h3 className="font-semibold mb-1">역할 전환</h3>
+                                        <p className="text-sm text-muted-foreground mb-3">
+                                            판매자 등록을 해제하고 일반 회원으로 전환합니다. 보유한 상점과 상품은 유지됩니다.
+                                        </p>
+                                        <Button
+                                            variant="destructive"
+                                            size="sm"
+                                            onClick={() => {
+                                                if (confirm('정말 일반 회원으로 전환하시겠습니까?')) {
+                                                    unregisterSellerMutation.mutate();
+                                                }
+                                            }}
+                                            disabled={unregisterSellerMutation.isPending}
+                                        >
+                                            {unregisterSellerMutation.isPending ? '전환 중...' : '일반 회원으로 전환'}
+                                        </Button>
+                                    </div>
                                 </div>
                             ) : (
                                 <div className="space-y-4">
