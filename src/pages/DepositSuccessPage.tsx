@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { CheckCircle2, XCircle, Loader2, Wallet, Home } from 'lucide-react';
+import { CheckCircle2, XCircle, Loader2, Wallet, Home, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { payService } from '@/services/payService';
@@ -18,8 +18,10 @@ export function DepositSuccessPage() {
     const [chargedAmount, setChargedAmount] = useState<number>(0);
     const [errorMessage, setErrorMessage] = useState('');
 
+    const params = new URLSearchParams(window.location.search);
+    const returnUrl = params.get('returnUrl');
+
     useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
         const paymentKey = params.get('paymentKey');
         const orderId = params.get('orderId');
         const amount = params.get('amount');
@@ -104,7 +106,15 @@ export function DepositSuccessPage() {
                 </Card>
 
                 <div className="flex flex-col sm:flex-row gap-3 w-full">
-                    <Button asChild size="lg" className="flex-1">
+                    {returnUrl && (
+                        <Button asChild size="lg" className="flex-1">
+                            <Link to={returnUrl}>
+                                <ShoppingBag className="mr-2 h-4 w-4" />
+                                이어서 주문하기
+                            </Link>
+                        </Button>
+                    )}
+                    <Button asChild size="lg" className={returnUrl ? 'flex-1' : 'flex-1'} variant={returnUrl ? 'outline' : 'default'}>
                         <Link to="/account?tab=wallet">
                             <Wallet className="mr-2 h-4 w-4" />
                             내 지갑 보기

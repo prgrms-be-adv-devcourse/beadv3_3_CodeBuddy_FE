@@ -1,9 +1,9 @@
 import { ProductCard } from './ProductCard';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { ProductResponse } from '@/types';
+import type { ProductResponse, ProductSearchResponse } from '@/types';
 
 interface ProductGridProps {
-    products: ProductResponse[];
+    products: (ProductResponse | ProductSearchResponse)[];
     isLoading?: boolean;
 }
 

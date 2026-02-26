@@ -10,17 +10,6 @@ import { cartService } from '@/services/cartService';
 import { useCartStore } from '@/stores/cartStore';
 import { useAuthStore } from '@/stores/authStore';
 import { toast } from 'sonner';
-import type { ProductResponse } from '@/types';
-
-// Mock detail for when backend is not available
-const getMockProduct = (id: number): ProductResponse => ({
-    productId: id,
-    productName: 'Elegant Summer Dress',
-    productPrice: 89000,
-    productStock: 25,
-    category: 'TOP',
-    storeName: 'Style Hub',
-});
 
 export function ProductDetailPage() {
     const { productId } = useParams<{ productId: string }>();
@@ -30,17 +19,9 @@ export function ProductDetailPage() {
 
     const { data: product, isLoading } = useQuery({
         queryKey: ['product', productId],
-        queryFn: async () => {
-            try {
-                return await productService.getProduct(Number(productId));
-            } catch {
-                // fallback to mock data when API fails
-                return getMockProduct(Number(productId));
-            }
-        },
-        placeholderData: getMockProduct(Number(productId)),
+        queryFn: () => productService.getProduct(Number(productId)),
         enabled: !!productId,
-        retry: 0,
+        retry: 1,
     });
 
     const formatPrice = (price: number) => {
@@ -87,17 +68,8 @@ export function ProductDetailPage() {
 
             toast.success(`${product.productName} 장바구니에 담았습니다`);
             setIsOpen(true);
-        } catch (error) {
-            addItem({
-                cartItemId: Date.now(),
-                productId: product.productId,
-                productName: product.productName,
-                cartCount: 1,
-                cartPrice: product.productPrice,
-                imageUrl: product.imageUrl,
-            });
-            toast.success(`${product.productName} 장바구니에 담았습니다`);
-            setIsOpen(true);
+        } catch {
+            toast.error('장바구니 추가에 실패했습니다. 다시 시도해주세요.');
         }
     };
 

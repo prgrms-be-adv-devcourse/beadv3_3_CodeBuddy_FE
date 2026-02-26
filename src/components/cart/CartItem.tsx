@@ -25,9 +25,8 @@ export function CartItem({ item }: CartItemProps) {
         try {
             await cartService.updateCartItem(item.cartItemId, newQuantity);
             updateItemQuantity(item.cartItemId, newQuantity);
-        } catch (error) {
-            // 로컬에서 동작하도록 fallback
-            updateItemQuantity(item.cartItemId, newQuantity);
+        } catch {
+            toast.error('수량 변경에 실패했습니다. 다시 시도해주세요.');
         }
     };
 
@@ -36,10 +35,8 @@ export function CartItem({ item }: CartItemProps) {
             await cartService.deleteCartItem(item.cartItemId);
             removeItem(item.cartItemId);
             toast.success('장바구니에서 삭제되었습니다');
-        } catch (error) {
-            // 로컬에서 동작하도록 fallback
-            removeItem(item.cartItemId);
-            toast.success('장바구니에서 삭제되었습니다');
+        } catch {
+            toast.error('삭제에 실패했습니다. 다시 시도해주세요.');
         }
     };
 

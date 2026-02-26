@@ -3,14 +3,14 @@ import { ShoppingCart } from 'lucide-react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import type { ProductResponse } from '@/types';
+import type { ProductResponse, ProductSearchResponse } from '@/types';
 import { useCartStore } from '@/stores/cartStore';
 import { useAuthStore } from '@/stores/authStore';
 import { toast } from 'sonner';
 import { cartService } from '@/services/cartService';
 
 interface ProductCardProps {
-    product: ProductResponse;
+    product: ProductResponse | ProductSearchResponse;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
@@ -24,14 +24,18 @@ export function ProductCard({ product }: ProductCardProps) {
         }).format(price);
     };
 
-    const getCategoryLabel = (category: string) => {
-        switch (category) {
+    const getCategoryLabel = (cat?: string) => {
+        if (!cat) return '';
+        // 백엔드에서 TOP, PANTS 코드로 올 수도 있고, 상의, 바지 이름으로 올 수도 있음
+        switch (cat.toUpperCase()) {
             case 'TOP':
+            case '상의':
                 return '상의';
             case 'PANTS':
-                return '하의';
+            case '바지':
+                return '바지';
             default:
-                return category;
+                return cat;
         }
     };
 
@@ -47,7 +51,7 @@ export function ProductCard({ product }: ProductCardProps) {
         try {
             const cartItemId = await cartService.addToCart({
                 productId: product.productId,
-                cartCount: 1,
+                productCount: 1,
             });
 
             addItem({
@@ -61,18 +65,8 @@ export function ProductCard({ product }: ProductCardProps) {
 
             toast.success(`${product.productName} 장바구니에 담았습니다`);
             setIsOpen(true);
-        } catch (error) {
-            // 로컬에서 동작하도록 fallback
-            addItem({
-                cartItemId: Date.now(),
-                productId: product.productId,
-                productName: product.productName,
-                cartCount: 1,
-                cartPrice: product.productPrice,
-                imageUrl: product.imageUrl,
-            });
-            toast.success(`${product.productName} 장바구니에 담았습니다`);
-            setIsOpen(true);
+        } catch {
+            toast.error('장바구니 추가에 실패했습니다. 다시 시도해주세요.');
         }
     };
 
@@ -93,7 +87,7 @@ export function ProductCard({ product }: ProductCardProps) {
                     />
 
                     {/* Stock Badge */}
-                    {product.productStock < 5 && product.productStock > 0 && (
+                    {'productStock' in product && product.productStock < 5 && product.productStock > 0 && (
                         <Badge
                             variant="destructive"
                             className="absolute top-3 left-3"
@@ -101,7 +95,7 @@ export function ProductCard({ product }: ProductCardProps) {
                             {product.productStock}개 남음
                         </Badge>
                     )}
-                    {product.productStock === 0 && (
+                    {'productStock' in product && product.productStock === 0 && (
                         <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                             <Badge variant="secondary" className="text-lg px-4 py-2">
                                 품절
@@ -115,7 +109,7 @@ export function ProductCard({ product }: ProductCardProps) {
                             variant="secondary"
                             className="w-full"
                             onClick={handleAddToCart}
-                            disabled={product.productStock === 0}
+                            disabled={'productStock' in product && product.productStock === 0}
                         >
                             <ShoppingCart className="h-4 w-4 mr-2" />
                             장바구니 담기
@@ -126,7 +120,12 @@ export function ProductCard({ product }: ProductCardProps) {
                 {/* Product Info */}
                 <CardContent className="p-4">
                     <Badge variant="outline" className="mb-2 text-xs">
-                        {getCategoryLabel(product.category)}
+                        {getCategoryLabel(
+                            'categoryName' in product ? product.categoryName :
+                                'subCategory' in product ? product.subCategory :
+                                    'categoryCode' in product ? product.categoryCode :
+                                        'topCategory' in product ? product.topCategory : ''
+                        )}
                     </Badge>
                     <h3 className="font-semibold text-lg line-clamp-1 group-hover:text-primary transition-colors">
                         {product.productName}

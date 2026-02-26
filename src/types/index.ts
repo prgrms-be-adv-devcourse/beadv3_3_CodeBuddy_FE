@@ -11,9 +11,23 @@ export interface ProductResponse {
     productName: string;
     productPrice: number;
     productStock: number;
-    category: Category;
+    categoryCode?: string;
+    categoryName?: string;
+    parentCategoryCode?: string;
     storeName: string;
     imageUrl?: string;
+}
+
+export interface ProductSearchResponse {
+    productId: number;
+    productName: string;
+    productPrice: number;
+    productStock: number;
+    topCategory?: string;
+    subCategory?: string;
+    storeName: string;
+    imageUrl?: string;
+    score?: number;
 }
 
 export interface RecommendProductInfoResponse {
@@ -139,6 +153,35 @@ export interface CatalogResult<T> {
 export interface ApiError {
     message: string;
     status: number;
+}
+
+export interface Page<T> {
+    content: T[];
+    pageable: {
+        pageNumber: number;
+        pageSize: number;
+        sort: {
+            empty: boolean;
+            sorted: boolean;
+            unsorted: boolean;
+        };
+        offset: number;
+        paged: boolean;
+        unpaged: boolean;
+    };
+    last: boolean;
+    totalPages: number;
+    totalElements: number;
+    size: number;
+    number: number;
+    sort: {
+        empty: boolean;
+        sorted: boolean;
+        unsorted: boolean;
+    };
+    first: boolean;
+    numberOfElements: number;
+    empty: boolean;
 }
 
 // ============================
