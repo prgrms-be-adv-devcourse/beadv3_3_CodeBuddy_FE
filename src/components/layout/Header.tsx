@@ -17,7 +17,7 @@ const navLinks = [
 
 export function Header() {
     const location = useLocation();
-    const { isAuthenticated, user, logout } = useAuthStore();
+    const { isAuthenticated, logout } = useAuthStore();
     const { items, toggleCart } = useCartStore();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
