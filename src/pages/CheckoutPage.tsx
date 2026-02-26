@@ -1,12 +1,14 @@
 import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, ShoppingBag, Package } from 'lucide-react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { ArrowLeft, ShoppingBag, Package, Wallet, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useCartStore } from '@/stores/cartStore';
 import { orderService } from '@/services/orderService';
+import { payService } from '@/services/payService';
 import { toast } from 'sonner';
+import { useQuery } from '@tanstack/react-query';
 
 export function CheckoutPage() {
     const navigate = useNavigate();
@@ -18,6 +20,14 @@ export function CheckoutPage() {
     const buyNowItem = location.state?.buyNowItem;
     const checkoutItems = buyNowItem ? [buyNowItem] : items;
     const checkoutTotalPrice = buyNowItem ? buyNowItem.cartPrice * buyNowItem.cartCount : totalPrice();
+
+    const { data: balanceData } = useQuery({
+        queryKey: ['account-balance'],
+        queryFn: payService.getBalance,
+    });
+
+    const balance = balanceData?.balance ?? 0;
+    const hasEnoughBalance = balance >= checkoutTotalPrice;
 
     const formatPrice = (price: number) =>
         new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(price);
@@ -35,16 +45,29 @@ export function CheckoutPage() {
     }
 
     const handleOrder = async () => {
+        if (!hasEnoughBalance) {
+            toast.error('예치금이 부족합니다. 충전 후 다시 시도해주세요.');
+            return;
+        }
         setIsLoading(true);
         try {
-            const orderItems = checkoutItems.map(item => ({
-                productId: item.productId,
-                orderCount: item.cartCount,
-            }));
-            const orderId = await orderService.createOrder({ orderItems });
+            let orderId: number;
 
-            // 장바구니 구매인 경우에만 장바구니 비우기
-            if (!buyNowItem) {
+            if (buyNowItem) {
+                // 바로 구매: POST /api/v1/orders (orderItems 배열로 요청)
+                orderId = await orderService.createOrder({
+                    orderItems: [{
+                        productId: buyNowItem.productId,
+                        orderCount: buyNowItem.cartCount,
+                    }],
+                });
+            } else {
+                // 장바구니 주문: 각 cartItem마다 POST /api/v1/orders/cart/{cartItemId}
+                let lastOrderId = 0;
+                for (const item of checkoutItems) {
+                    lastOrderId = await orderService.createOrderFromCart(item.cartItemId);
+                }
+                orderId = lastOrderId;
                 clearCart();
             }
 
@@ -58,16 +81,13 @@ export function CheckoutPage() {
         }
     };
 
+
     return (
         <div className="min-h-screen bg-background">
             <div className="max-w-2xl mx-auto px-4 py-8">
                 {/* 헤더 */}
                 <div className="flex items-center gap-3 mb-8">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => navigate(-1)}
-                    >
+                    <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
                     <h1 className="text-2xl font-bold">주문 확인</h1>
@@ -97,13 +117,9 @@ export function CheckoutPage() {
                                 )}
                                 <div className="flex-1 min-w-0">
                                     <p className="font-medium truncate">{item.productName}</p>
-                                    <p className="text-sm text-muted-foreground">
-                                        수량: {item.cartCount}개
-                                    </p>
+                                    <p className="text-sm text-muted-foreground">수량: {item.cartCount}개</p>
                                 </div>
-                                <p className="font-semibold whitespace-nowrap">
-                                    {formatPrice(item.cartPrice)}
-                                </p>
+                                <p className="font-semibold whitespace-nowrap">{formatPrice(item.cartPrice)}</p>
                             </div>
                         ))}
                     </CardContent>
@@ -128,14 +144,46 @@ export function CheckoutPage() {
                     </CardContent>
                 </Card>
 
+                {/* 예치금 잔액 */}
+                <Card className={`mb-6 ${hasEnoughBalance ? 'border-primary/30 bg-primary/5' : 'border-destructive/30 bg-destructive/5'}`}>
+                    <CardContent className="pt-4 pb-4">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <Wallet className={`h-4 w-4 ${hasEnoughBalance ? 'text-primary' : 'text-destructive'}`} />
+                                <span className="text-sm font-medium">예치금 잔액</span>
+                            </div>
+                            <span className={`font-bold ${hasEnoughBalance ? 'text-primary' : 'text-destructive'}`}>
+                                {formatPrice(balance)}
+                            </span>
+                        </div>
+                        {hasEnoughBalance ? (
+                            <p className="text-xs text-muted-foreground mt-1 pl-6">
+                                결제 후 잔액: {formatPrice(balance - checkoutTotalPrice)}
+                            </p>
+                        ) : (
+                            <div className="mt-2 pl-6 flex items-center justify-between">
+                                <p className="text-xs text-destructive flex items-center gap-1">
+                                    <AlertTriangle className="h-3 w-3" />
+                                    {formatPrice(checkoutTotalPrice - balance)} 부족합니다
+                                </p>
+                                <Button asChild size="sm" variant="outline" className="h-7 text-xs">
+                                    <Link to="/deposit">충전하기</Link>
+                                </Button>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
                 {/* 주문하기 버튼 */}
                 <Button
                     className="w-full"
                     size="lg"
                     onClick={handleOrder}
-                    disabled={isLoading}
+                    disabled={isLoading || !hasEnoughBalance}
                 >
-                    {isLoading ? '주문 처리 중...' : `${formatPrice(checkoutTotalPrice)} 주문하기`}
+                    {isLoading ? '주문 처리 중...' : hasEnoughBalance
+                        ? `예치금으로 ${formatPrice(checkoutTotalPrice)} 결제하기`
+                        : '예치금이 부족합니다'}
                 </Button>
             </div>
         </div>
