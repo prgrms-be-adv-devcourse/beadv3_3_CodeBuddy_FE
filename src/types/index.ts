@@ -75,7 +75,7 @@ export interface CartItem {
 // ============================
 // Order Types
 // ============================
-export type OrderStatus = 'PENDING' | 'CONFIRMED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
+export type OrderStatus = 'CREATED' | 'STOCK_CONFIRMED' | 'PAID' | 'CANCELED' | 'COMPLETED' | 'FAILED';
 
 export interface OrderItemCreateRequest {
     productId: number;
@@ -96,7 +96,7 @@ export interface OrderItem {
 
 export interface OrderResponse {
     orderId: number;
-    productName: string[];
+    orderItemDto: OrderItem[];
     orderAmount: number;
 }
 
@@ -244,3 +244,24 @@ export interface PaymentConfirmRequest {
     amount: number;
 }
 
+// ============================
+// Recommend Types
+// ============================
+export interface RecommendItem {
+    imageUrl: string;
+    category: string;
+}
+
+export interface RecommendResultItem {
+    imageUrl: string;
+    category: string;
+    productIds: string[];
+}
+
+export type RecommendPollingStatus = 'PROCESSING' | 'COMPLETED' | 'FAILED';
+
+export interface RecommendPollingResponse {
+    status: RecommendPollingStatus;
+    message: string;
+    data: RecommendResultItem[] | null;
+}
