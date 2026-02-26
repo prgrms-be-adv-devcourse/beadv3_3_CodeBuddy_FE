@@ -261,8 +261,10 @@ function AddProductForm({ storeId, onSuccess }: { storeId: number; onSuccess: ()
 // ─────────────────────────────────────────────
 // Store Accordion with Products
 // ─────────────────────────────────────────────
-function StoreCard({ store }: { store: { storeId: number; storeName: string } }) {
+function StoreCard({ store, onStoreChanged }: { store: { storeId: number; storeName: string }; onStoreChanged: () => void }) {
     const [expanded, setExpanded] = useState(false);
+    const [isEditingName, setIsEditingName] = useState(false);
+    const [editName, setEditName] = useState(store.storeName);
     const queryClient = useQueryClient();
 
     const { data: products, isLoading } = useQuery({
@@ -272,6 +274,25 @@ function StoreCard({ store }: { store: { storeId: number; storeName: string } })
     });
 
     const refresh = () => queryClient.invalidateQueries({ queryKey: ['store-products', store.storeId] });
+
+    const updateStoreMutation = useMutation({
+        mutationFn: () => storeService.updateStore(store.storeId, { storeName: editName }),
+        onSuccess: () => {
+            toast.success('상점 이름이 수정되었습니다.');
+            setIsEditingName(false);
+            onStoreChanged();
+        },
+        onError: () => toast.error('상점 수정 실패'),
+    });
+
+    const deleteStoreMutation = useMutation({
+        mutationFn: () => storeService.deleteStore(store.storeId),
+        onSuccess: () => {
+            toast.success('상점이 삭제되었습니다.');
+            onStoreChanged();
+        },
+        onError: () => toast.error('상점 삭제 실패'),
+    });
 
     return (
         <Card>
@@ -292,10 +313,47 @@ function StoreCard({ store }: { store: { storeId: number; storeName: string } })
             </CardHeader>
 
             {expanded && (
-                <CardContent className="space-y-3 pt-0">
+                <CardContent className="space-y-4 pt-0">
+                    {/* 상점 관리 */}
+                    <Separator />
+                    <div className="flex items-center gap-2">
+                        <h4 className="text-sm font-semibold">상점 관리</h4>
+                    </div>
+                    {isEditingName ? (
+                        <div className="flex gap-2 items-end">
+                            <div className="grid gap-1 flex-1">
+                                <Label className="text-xs">상점 이름</Label>
+                                <Input value={editName} onChange={(e) => setEditName(e.target.value)} />
+                            </div>
+                            <Button size="sm" onClick={() => updateStoreMutation.mutate()} disabled={updateStoreMutation.isPending || !editName.trim()}>
+                                {updateStoreMutation.isPending ? '저장 중...' : '저장'}
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={() => { setIsEditingName(false); setEditName(store.storeName); }}>취소</Button>
+                        </div>
+                    ) : (
+                        <div className="flex gap-2">
+                            <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setIsEditingName(true); }} className="flex items-center gap-1">
+                                <Pencil className="h-3 w-3" /> 이름 수정
+                            </Button>
+                            <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (confirm(`'${store.storeName}' 상점을 정말 삭제하시겠습니까?`)) deleteStoreMutation.mutate();
+                                }}
+                                disabled={deleteStoreMutation.isPending}
+                                className="flex items-center gap-1"
+                            >
+                                <Trash2 className="h-3 w-3" /> 상점 삭제
+                            </Button>
+                        </div>
+                    )}
+
+                    {/* 상품 관리 */}
                     <Separator />
                     <h4 className="text-sm font-semibold flex items-center gap-1">
-                        <ShoppingBag className="h-3 w-3" /> 상품 목록
+                        <ShoppingBag className="h-3 w-3" /> 상품 관리
                     </h4>
                     {isLoading ? (
                         <p className="text-sm text-muted-foreground">불러오는 중...</p>
@@ -354,19 +412,25 @@ export function MyAccountPage() {
     };
 
     // Seller
+    const isSeller = profile?.role === 'SELLER' || user?.role === 'SELLER';
+
     const { data: sellerInfo } = useQuery({
         queryKey: ['my-seller'],
         queryFn: sellerService.getMyInfo,
-        enabled: user?.role === 'SELLER',
+        enabled: isSeller,
         retry: false,
     });
 
     const registerSellerMutation = useMutation({
         mutationFn: async (name: string) => { await sellerService.register({ sellerName: name }); },
-        onSuccess: () => {
+        onSuccess: async () => {
             toast.success('판매자로 등록되었습니다!');
-            queryClient.invalidateQueries({ queryKey: ['my-seller'] });
+            // 역할 변경 후 me 다시 조회하여 authStore 갱신
+            const me = await userService.getMe();
+            updateUser(me);
             queryClient.invalidateQueries({ queryKey: ['me'] });
+            queryClient.invalidateQueries({ queryKey: ['my-seller'] });
+            setActiveTab('stores');
         },
         onError: () => toast.error('판매자 등록 실패'),
     });
@@ -389,7 +453,7 @@ export function MyAccountPage() {
     const { data: myStores } = useQuery({
         queryKey: ['my-stores'],
         queryFn: storeService.getMyStores,
-        enabled: !!sellerInfo,
+        enabled: isSeller,
     });
 
     const createStoreMutation = useMutation({
@@ -435,7 +499,7 @@ export function MyAccountPage() {
                     <TabsTrigger value="seller" className="flex items-center gap-2">
                         <ShoppingBag className="h-4 w-4" /> 판매자
                     </TabsTrigger>
-                    <TabsTrigger value="stores" className="flex items-center gap-2" disabled={!sellerInfo}>
+                    <TabsTrigger value="stores" className="flex items-center gap-2" disabled={!isSeller}>
                         <Store className="h-4 w-4" /> 상점
                     </TabsTrigger>
                     <TabsTrigger value="wallet" className="flex items-center gap-2">
@@ -565,7 +629,7 @@ export function MyAccountPage() {
                             <Store className="h-5 w-5" /> 내 상점 목록
                         </h2>
                         {myStores && myStores.length > 0 ? (
-                            myStores.map((store) => <StoreCard key={store.storeId} store={store} />)
+                            myStores.map((store) => <StoreCard key={store.storeId} store={store} onStoreChanged={() => queryClient.invalidateQueries({ queryKey: ['my-stores'] })} />)
                         ) : (
                             <p className="text-muted-foreground text-center py-12">
                                 상점이 없습니다. 위에서 첫 번째 상점을 만들어보세요!
