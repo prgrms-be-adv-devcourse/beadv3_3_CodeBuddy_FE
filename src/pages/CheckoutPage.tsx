@@ -17,7 +17,16 @@ export function CheckoutPage() {
     const [isLoading, setIsLoading] = useState(false);
 
     // 바로 구매(단건 주문)인지 장바구니(다건 주문)인지 확인
-    const buyNowItem = location.state?.buyNowItem;
+    // location.state가 없을 경우 sessionStorage에서 복구 (예치금 충전 후 리다이렉트 등)
+    const stateBuyNowItem = location.state?.buyNowItem;
+    const [buyNowItem] = useState(() => {
+        if (stateBuyNowItem) {
+            sessionStorage.setItem('buyNowItem', JSON.stringify(stateBuyNowItem));
+            return stateBuyNowItem;
+        }
+        const saved = sessionStorage.getItem('buyNowItem');
+        return saved ? JSON.parse(saved) : null;
+    });
     const checkoutItems = buyNowItem ? [buyNowItem] : items;
     const checkoutTotalPrice = buyNowItem ? buyNowItem.cartPrice * buyNowItem.cartCount : totalPrice();
 
@@ -71,6 +80,8 @@ export function CheckoutPage() {
                 clearCart();
             }
 
+            // 주문 완료 후 sessionStorage 정리
+            sessionStorage.removeItem('buyNowItem');
             toast.success('주문이 완료되었습니다!');
             navigate(`/orders/${orderId}`);
         } catch (error: any) {
@@ -167,7 +178,7 @@ export function CheckoutPage() {
                                     {formatPrice(checkoutTotalPrice - balance)} 부족합니다
                                 </p>
                                 <Button asChild size="sm" variant="outline" className="h-7 text-xs">
-                                    <Link to="/deposit">충전하기</Link>
+                                    <Link to="/deposit?returnUrl=/checkout">충전하기</Link>
                                 </Button>
                             </div>
                         )}

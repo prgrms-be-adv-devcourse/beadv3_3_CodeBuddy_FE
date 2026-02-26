@@ -3,75 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 import { ProductGrid, ProductFilters } from '@/components/products';
 import { productService } from '@/services/productService';
-import type { Category, ProductResponse } from '@/types';
-
-// 목업 데이터 (백엔드가 없을 때 사용)
-const mockProducts: ProductResponse[] = [
-    {
-        productId: 1,
-        productName: 'Classic White T-Shirt',
-        productPrice: 29000,
-        productStock: 50,
-        category: 'TOP',
-        storeName: 'Style Hub',
-    },
-    {
-        productId: 2,
-        productName: 'Elegant Summer Dress',
-        productPrice: 89000,
-        productStock: 25,
-        category: 'TOP',
-        storeName: 'Style Hub',
-    },
-    {
-        productId: 3,
-        productName: 'Slim Fit Jeans',
-        productPrice: 59000,
-        productStock: 30,
-        category: 'PANTS',
-        storeName: 'Denim Co',
-    },
-    {
-        productId: 4,
-        productName: 'Cotton Hoodie',
-        productPrice: 79000,
-        productStock: 15,
-        category: 'TOP',
-        storeName: 'Comfort Wear',
-    },
-    {
-        productId: 5,
-        productName: 'Chino Pants',
-        productPrice: 49000,
-        productStock: 40,
-        category: 'PANTS',
-        storeName: 'Classic Style',
-    },
-    {
-        productId: 6,
-        productName: 'Striped Polo Shirt',
-        productPrice: 45000,
-        productStock: 20,
-        category: 'TOP',
-        storeName: 'Style Hub',
-    },
-    {
-        productId: 7,
-        productName: 'Cargo Pants',
-        productPrice: 69000,
-        productStock: 3,
-        category: 'PANTS',
-        storeName: 'Urban Outfitters',
-    },
-    {
-        productId: 8,
-        productName: 'Linen Blouse',
-        productPrice: 55000,
-        productStock: 0,
-        category: 'TOP',
-        storeName: 'Elegant Fashion',
-    },
-];
+import type { Category, ProductSearchResponse } from '@/types';
 
 export function ProductsPage() {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -88,37 +20,26 @@ export function ProductsPage() {
 
     const categoryParam = searchParams.get('category') as Category | null;
     const selectedCategory: Category | 'ALL' = categoryParam || 'ALL';
+    const pageParam = parseInt(searchParams.get('page') || '0', 10);
+    const sizeParam = parseInt(searchParams.get('size') || '20', 10);
 
-    // 상품 데이터 페칭
-    const { data: products = [], isLoading } = useQuery({
-        queryKey: ['products'],
-        queryFn: productService.getAllProducts,
-        // 백엔드가 없을 때 mock 데이터 사용
-        placeholderData: mockProducts,
+    // 상품 데이터 페칭 (Elasticsearch 연동 백엔드 API + 초기 로드 대응)
+    const { data: pageData, isLoading } = useQuery({
+        queryKey: ['products', selectedCategory, debouncedSearchQuery, pageParam, sizeParam],
+        queryFn: async () => {
+            if (selectedCategory === 'ALL') {
+                return productService.searchProducts(debouncedSearchQuery, pageParam, sizeParam);
+            } else {
+                // 백엔드 ES 검색 엔진이 topCategory(TOP/PANTS)를 파싱할 수 있게 카테고리명 자체를 검색어에 합쳐서 전송합니다.
+                const combinedQuery = `${selectedCategory} ${debouncedSearchQuery}`.trim();
+                return productService.searchProducts(combinedQuery, pageParam, sizeParam);
+            }
+        },
         retry: 1,
     });
 
-    // 필터링된 상품
-    const filteredProducts = useMemo(() => {
-        let result = products.length > 0 ? products : mockProducts;
-
-        // 카테고리 필터
-        if (selectedCategory !== 'ALL') {
-            result = result.filter((p) => p.category === selectedCategory);
-        }
-
-        // 검색 필터
-        if (debouncedSearchQuery) {
-            const query = debouncedSearchQuery.toLowerCase();
-            result = result.filter(
-                (p) =>
-                    p.productName.toLowerCase().includes(query) ||
-                    p.storeName.toLowerCase().includes(query)
-            );
-        }
-
-        return result;
-    }, [products, selectedCategory, debouncedSearchQuery]);
+    // 필터링된 상품 (이제 백엔드에서 받아온 content를 그대로 사용)
+    const filteredProducts: ProductSearchResponse[] = pageData?.content || [];
 
     const handleCategoryChange = (category: Category | 'ALL') => {
         if (category === 'ALL') {

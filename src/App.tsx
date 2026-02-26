@@ -43,7 +43,7 @@ function App() {
             <Route path="/account" element={<MyAccountPage />} />
             <Route path="/board" element={<BoardPage />} />
             <Route path="/board/:postId" element={<BoardDetailPage />} />
-            <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
+            <Route path="/login_process" element={<OAuthCallbackPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/orders/:orderId" element={<OrderSuccessPage />} />
             <Route path="/deposit" element={<DepositChargePage />} />

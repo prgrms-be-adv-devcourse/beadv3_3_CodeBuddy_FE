@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Wallet, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,6 +20,8 @@ function formatPrice(price: number) {
 
 export function DepositChargePage() {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const returnUrl = searchParams.get('returnUrl');
     const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
     const [customAmount, setCustomAmount] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -48,8 +50,8 @@ export function DepositChargePage() {
                 amount: { currency: 'KRW', value: chargeAmount },
                 orderId,
                 orderName: `예치금 충전 ${formatPrice(chargeAmount)}`,
-                successUrl: `${window.location.origin}/deposit/success`,
-                failUrl: `${window.location.origin}/deposit?error=true`,
+                successUrl: `${window.location.origin}/deposit/success${returnUrl ? `?returnUrl=${encodeURIComponent(returnUrl)}` : ''}`,
+                failUrl: `${window.location.origin}/deposit?error=true${returnUrl ? `&returnUrl=${encodeURIComponent(returnUrl)}` : ''}`,
             });
         } catch (error: any) {
             if (error?.code !== 'USER_CANCEL') {
@@ -105,8 +107,8 @@ export function DepositChargePage() {
                                     key={amount}
                                     onClick={() => { setSelectedAmount(amount); setCustomAmount(''); }}
                                     className={`rounded-lg border py-3 px-2 text-sm font-medium transition-all ${selectedAmount === amount
-                                            ? 'border-primary bg-primary text-primary-foreground'
-                                            : 'border-border bg-card hover:border-primary/50 hover:bg-accent'
+                                        ? 'border-primary bg-primary text-primary-foreground'
+                                        : 'border-border bg-card hover:border-primary/50 hover:bg-accent'
                                         }`}
                                 >
                                     {formatPrice(amount)}

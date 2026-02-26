@@ -40,7 +40,7 @@ export function CartRecommendations() {
         new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(price);
 
     const handleAddToCart = async (product: RecommendProductInfoResponse) => {
-        const request: CartCreateRequest = { productId: product.productId, cartCount: 1 };
+        const request: CartCreateRequest = { productId: product.productId, productCount: 1 };
         try {
             const cartItemId = await cartService.addToCart(request);
             addItem({
@@ -67,7 +67,7 @@ export function CartRecommendations() {
     return (
         <div className="mt-3 border-t pt-3">
             {/* 헤더 */}
-            <div className="flex items-center justify-between mb-2 px-1">
+            <div className="flex items-center justify-between mb-2">
                 <div>
                     <p className="text-sm font-semibold">이 상품 어때세요? 👀</p>
                     <p className="text-xs text-muted-foreground">함께 구매하면 좋아요</p>

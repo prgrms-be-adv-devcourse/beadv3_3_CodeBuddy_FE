@@ -180,11 +180,11 @@ function AddProductForm({ storeId, onSuccess }: { storeId: number; onSuccess: ()
                 categoryCode: form.category as 'TOP' | 'PANTS',
                 imgUrl: form.imgUrl || undefined,
             }),
-        onSuccess: () => {
+        onSuccess: async () => {
+            await onSuccess();
             toast.success('상품이 등록되었습니다.');
             setForm({ productName: '', productPrice: '', productStock: '', category: 'TOP', imgUrl: '' });
             setOpen(false);
-            onSuccess();
         },
         onError: () => toast.error('상품 등록 실패'),
     });
@@ -270,10 +270,11 @@ function StoreCard({ store, onStoreChanged }: { store: { storeId: number; storeN
     const { data: products, isLoading } = useQuery({
         queryKey: ['store-products', store.storeId],
         queryFn: () => productService.getProductsByStore(store.storeId),
-        enabled: expanded,
     });
 
-    const refresh = () => queryClient.invalidateQueries({ queryKey: ['store-products', store.storeId] });
+    const refresh = async () => {
+        await queryClient.invalidateQueries({ queryKey: ['store-products', store.storeId] });
+    };
 
     const updateStoreMutation = useMutation({
         mutationFn: () => storeService.updateStore(store.storeId, { storeName: editName }),
@@ -306,7 +307,9 @@ function StoreCard({ store, onStoreChanged }: { store: { storeId: number; storeN
                         <CardDescription>ID: {store.storeId}</CardDescription>
                     </div>
                     <div className="flex items-center gap-2">
-                        <Badge variant="secondary">{products?.length ?? '—'}개 상품</Badge>
+                        <Badge variant="secondary">
+                            {isLoading ? '로딩 중...' : `${products?.length ?? 0}개 상품`}
+                        </Badge>
                         {expanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
                     </div>
                 </div>
@@ -360,7 +363,7 @@ function StoreCard({ store, onStoreChanged }: { store: { storeId: number; storeN
                     ) : products && products.length > 0 ? (
                         <div className="space-y-2">
                             {products.map((p) => (
-                                <ProductEditRow key={p.productId} product={p} onSaved={refresh} onDeleted={refresh} />
+                                <ProductEditRow key={p.productId} product={{ ...p, category: p.categoryName || p.categoryCode || 'TOP' }} onSaved={refresh} onDeleted={refresh} />
                             ))}
                         </div>
                     ) : (

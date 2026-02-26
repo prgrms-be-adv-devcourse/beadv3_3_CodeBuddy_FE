@@ -38,7 +38,7 @@ export function OrderSuccessPage() {
         );
     }
 
-    const isSuccess = ['CONFIRMED', 'SHIPPED', 'DELIVERED'].includes(order.orderStatus);
+    const isSuccess = ['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED'].includes(order.orderStatus);
 
     return (
         <div className="container mx-auto px-4 py-12 max-w-2xl">

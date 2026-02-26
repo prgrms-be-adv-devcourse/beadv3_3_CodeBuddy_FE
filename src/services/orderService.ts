@@ -6,8 +6,14 @@ const ORDER_BASE = '/api/v1/orders';
 export const orderService = {
     // 주문 생성
     createOrder: async (request: OrderCreateRequest): Promise<number> => {
-        const response = await api.post<number>(ORDER_BASE, request);
-        return response.data;
+        const response = await api.post(ORDER_BASE, request);
+        const data = response.data;
+        // 백엔드가 OrderResponse 객체를 반환하는 경우 orderId 추출
+        if (typeof data === 'object' && data !== null && 'orderId' in data) {
+            return data.orderId;
+        }
+        // 숫자를 직접 반환하는 경우
+        return Number(data);
     },
 
     // 주문 목록 조회
@@ -28,9 +34,14 @@ export const orderService = {
     },
 
     // 장바구니에서 주문 생성
-    createOrderFromCart: async (orderId: number): Promise<number> => {
-        const response = await api.post<number>(`${ORDER_BASE}/cart/${orderId}`);
-        return response.data;
+    createOrderFromCart: async (cartItemId: number): Promise<number> => {
+        const response = await api.post(`${ORDER_BASE}/cart/${cartItemId}`);
+        const data = response.data;
+        // 백엔드가 OrderResponse 객체를 반환하는 경우 orderId 추출
+        if (typeof data === 'object' && data !== null && 'orderId' in data) {
+            return data.orderId;
+        }
+        return Number(data);
     },
 };
 
