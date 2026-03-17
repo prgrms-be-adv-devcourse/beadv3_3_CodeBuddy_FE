@@ -23,22 +23,54 @@ export function ProductsPage() {
     const pageParam = parseInt(searchParams.get('page') || '0', 10);
     const sizeParam = parseInt(searchParams.get('size') || '20', 10);
 
-    // 상품 데이터 페칭 (Elasticsearch 연동 백엔드 API + 초기 로드 대응)
+    // 상품 데이터 페칭
+    // - 검색어 없음 + 카테고리 ALL → getAllProducts (DB 전체 조회)
+    // - 검색어 없음 + 카테고리 선택 → searchByCategory (ES 카테고리 필터)
+    // - 검색어 있음 → searchProducts (ES 키워드 검색)
     const { data: pageData, isLoading } = useQuery({
         queryKey: ['products', selectedCategory, debouncedSearchQuery, pageParam, sizeParam],
         queryFn: async () => {
-            if (selectedCategory === 'ALL') {
-                return productService.searchProducts(debouncedSearchQuery, pageParam, sizeParam);
-            } else {
-                // 백엔드 ES 검색 엔진이 topCategory(TOP/PANTS)를 파싱할 수 있게 카테고리명 자체를 검색어에 합쳐서 전송합니다.
-                const combinedQuery = `${selectedCategory} ${debouncedSearchQuery}`.trim();
-                return productService.searchProducts(combinedQuery, pageParam, sizeParam);
+            const hasKeyword = debouncedSearchQuery.trim().length > 0;
+
+            if (!hasKeyword && selectedCategory === 'ALL') {
+                // 기본 전체 조회: DB에서 가져옴 (ES가 아닌 getAllProducts)
+                const allProducts = await productService.getAllProducts();
+                // Page<ProductSearchResponse> 형태에 맞추기 위해 변환
+                return {
+                    content: allProducts.map(p => ({
+                        productId: p.productId,
+                        productName: p.productName,
+                        productPrice: p.productPrice,
+                        productStock: p.productStock,
+                        topCategory: p.parentCategoryCode,
+                        subCategory: p.categoryName,
+                        storeName: p.storeName,
+                        imageUrl: p.imageUrl,
+                    })),
+                    totalElements: allProducts.length,
+                    totalPages: 1,
+                    number: 0,
+                    size: allProducts.length,
+                } as any;
             }
+
+            if (!hasKeyword && selectedCategory !== 'ALL') {
+                // 카테고리만 선택, 키워드 없음 → 카테고리 전용 API
+                return productService.searchByCategory(selectedCategory, undefined, pageParam, sizeParam);
+            }
+
+            if (selectedCategory !== 'ALL') {
+                // 카테고리 + 키워드 검색
+                return productService.searchByCategory(selectedCategory, debouncedSearchQuery, pageParam, sizeParam);
+            }
+
+            // ALL + 키워드 → ES 키워드 검색
+            return productService.searchProducts(debouncedSearchQuery, pageParam, sizeParam);
         },
         retry: 1,
     });
 
-    // 필터링된 상품 (이제 백엔드에서 받아온 content를 그대로 사용)
+    // 필터링된 상품 (백엔드에서 받아온 content를 그대로 사용)
     const filteredProducts: ProductSearchResponse[] = pageData?.content || [];
 
     const handleCategoryChange = (category: Category | 'ALL') => {

@@ -13,23 +13,32 @@ export const api = axios.create({
     },
 });
 
+// 인증이 필요 없는 공개 API 경로
+const PUBLIC_PATHS = ['/api/v1/authc', '/api/v1/auth/login'];
+
 // Request interceptor - add auth token
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('accessToken');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
+        const requestPath = config.url || '';
+        const isPublicPath = PUBLIC_PATHS.some(path => requestPath.includes(path));
 
-        // Add user ID and role headers for backend services
-        const userId = localStorage.getItem('userId');
-        if (userId) {
-            config.headers['X-User-Id'] = userId;
-        }
+        // 공개 API에는 인증 헤더를 첨부하지 않음
+        if (!isPublicPath) {
+            const token = localStorage.getItem('accessToken');
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
+            }
 
-        const userRole = localStorage.getItem('userRole');
-        if (userRole) {
-            config.headers['X-User-Role'] = userRole;
+            // Add user ID and role headers for backend services
+            const userId = localStorage.getItem('userId');
+            if (userId) {
+                config.headers['X-User-Id'] = userId;
+            }
+
+            const userRole = localStorage.getItem('userRole');
+            if (userRole) {
+                config.headers['X-User-Role'] = userRole;
+            }
         }
 
         return config;

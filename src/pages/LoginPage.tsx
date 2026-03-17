@@ -28,6 +28,12 @@ export function LoginPage() {
     const onSubmit = async (data: LoginRequest) => {
         setIsLoading(true);
         try {
+            // 0단계: 이전 세션 데이터 정리 (계정 전환 시 충돌 방지)
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('userRole');
+
             // 1단계: 로그인 → accessToken, refreshToken 획득
             const { accessToken, refreshToken } = await authService.login(data);
 

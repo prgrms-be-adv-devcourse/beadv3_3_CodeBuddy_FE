@@ -15,8 +15,9 @@ import { sellerService } from '@/services/sellerService';
 import { storeService } from '@/services/storeService';
 import { productService } from '@/services/productService';
 import { payService } from '@/services/payService';
+import { orderService } from '@/services/orderService';
 import type { UpdateProductRequest } from '@/types';
-import { User, Store, ShoppingBag, Wallet, Plus, Pencil, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { User, Store, ShoppingBag, Wallet, Plus, Pencil, Trash2, ChevronDown, ChevronUp, ClipboardList, Package, XCircle, Loader2 } from 'lucide-react';
 
 // ─────────────────────────────────────────────
 // Product Edit Mini-Form (inline)
@@ -274,6 +275,8 @@ function StoreCard({ store, onStoreChanged }: { store: { storeId: number; storeN
 
     const refresh = async () => {
         await queryClient.invalidateQueries({ queryKey: ['store-products', store.storeId] });
+        // 전체 상품 목록 캐시도 갱신하여 ProductsPage에 즉시 반영
+        await queryClient.invalidateQueries({ queryKey: ['products'] });
     };
 
     const updateStoreMutation = useMutation({
@@ -468,6 +471,42 @@ export function MyAccountPage() {
         onError: () => toast.error('상점 개설 실패'),
     });
 
+    // Orders
+    const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
+
+    const { data: ordersData, isLoading: isOrdersLoading } = useQuery({
+        queryKey: ['my-orders'],
+        queryFn: orderService.getOrders,
+        enabled: activeTab === 'orders',
+    });
+
+    const { data: orderDetailData, isLoading: isOrderDetailLoading } = useQuery({
+        queryKey: ['order-detail', expandedOrderId],
+        queryFn: () => orderService.getOrderDetail(expandedOrderId!),
+        enabled: !!expandedOrderId,
+    });
+
+    const cancelOrderMutation = useMutation({
+        mutationFn: (orderId: number) => orderService.cancelOrder(orderId),
+        onSuccess: () => {
+            toast.success('주문이 취소되었습니다.');
+            queryClient.invalidateQueries({ queryKey: ['my-orders'] });
+            queryClient.invalidateQueries({ queryKey: ['order-detail', expandedOrderId] });
+        },
+        onError: () => toast.error('주문 취소에 실패했습니다.'),
+    });
+
+    const orderStatusInfo: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+        CREATED: { label: '주문 생성', variant: 'outline' },
+        STOCK_CONFIRMED: { label: '재고 확인', variant: 'secondary' },
+        PAID: { label: '결제 완료', variant: 'default' },
+        CANCELED: { label: '취소됨', variant: 'destructive' },
+        COMPLETED: { label: '완료', variant: 'default' },
+        FAILED: { label: '실패', variant: 'destructive' },
+    };
+
+    const isCancelable = (status: string) => ['CREATED', 'STOCK_CONFIRMED', 'PAID'].includes(status);
+
     // Wallet
     const { data: balanceData } = useQuery({
         queryKey: ['account-balance'],
@@ -495,9 +534,12 @@ export function MyAccountPage() {
             <h1 className="text-3xl font-bold mb-8">내 계정</h1>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                <TabsList className="grid w-full grid-cols-4 lg:w-[520px]">
+                <TabsList className="grid w-full grid-cols-5 lg:w-[650px]">
                     <TabsTrigger value="profile" className="flex items-center gap-2">
                         <User className="h-4 w-4" /> 프로필
+                    </TabsTrigger>
+                    <TabsTrigger value="orders" className="flex items-center gap-2">
+                        <ClipboardList className="h-4 w-4" /> 주문내역
                     </TabsTrigger>
                     <TabsTrigger value="seller" className="flex items-center gap-2">
                         <ShoppingBag className="h-4 w-4" /> 판매자
@@ -638,6 +680,150 @@ export function MyAccountPage() {
                                 상점이 없습니다. 위에서 첫 번째 상점을 만들어보세요!
                             </p>
                         )}
+                    </div>
+                </TabsContent>
+
+                {/* Orders Tab */}
+                <TabsContent value="orders">
+                    <div className="space-y-4">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <ClipboardList className="h-5 w-5" />
+                                    주문 내역
+                                </CardTitle>
+                                <CardDescription>주문한 상품의 목록과 상태를 확인하세요.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                {isOrdersLoading ? (
+                                    <div className="flex items-center justify-center py-12">
+                                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                                    </div>
+                                ) : ordersData && ordersData.length > 0 ? (
+                                    <div className="space-y-3">
+                                        {ordersData.map((order) => {
+                                            const isExpanded = expandedOrderId === order.orderId;
+                                            const detail = isExpanded ? orderDetailData : null;
+                                            const statusInfo = orderStatusInfo[detail?.orderStatus ?? ''] ?? { label: '알 수 없음', variant: 'outline' as const };
+
+                                            return (
+                                                <div key={order.orderId} className="border rounded-lg overflow-hidden transition-all hover:shadow-sm">
+                                                    {/* 주문 요약 헤더 */}
+                                                    <button
+                                                        className="w-full flex items-center justify-between p-4 hover:bg-accent/50 transition-colors text-left"
+                                                        onClick={() => setExpandedOrderId(isExpanded ? null : order.orderId)}
+                                                    >
+                                                        <div className="flex items-center gap-3 min-w-0">
+                                                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                                                <Package className="h-5 w-5 text-primary" />
+                                                            </div>
+                                                            <div className="min-w-0">
+                                                                <p className="font-medium truncate">
+                                                                    주문 #{order.orderId}
+                                                                </p>
+                                                                <p className="text-sm text-muted-foreground truncate">
+                                                                    {order.orderItemDto && order.orderItemDto.length > 0
+                                                                        ? order.orderItemDto.map(item => item.productName).join(', ')
+                                                                        : '상품 정보 로딩 중...'}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex items-center gap-3 flex-shrink-0">
+                                                            <span className="font-semibold">{formatPrice(order.orderAmount)}</span>
+                                                            {isExpanded
+                                                                ? <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                                                                : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                                                        </div>
+                                                    </button>
+
+                                                    {/* 주문 상세 (펼침) */}
+                                                    {isExpanded && (
+                                                        <div className="border-t bg-muted/20 p-4 space-y-4 animate-fade-in">
+                                                            {isOrderDetailLoading ? (
+                                                                <div className="flex items-center justify-center py-6">
+                                                                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                                                                </div>
+                                                            ) : detail ? (
+                                                                <>
+                                                                    {/* 상태 및 일시 */}
+                                                                    <div className="flex items-center justify-between">
+                                                                        <div className="space-y-1">
+                                                                            <div className="flex items-center gap-2">
+                                                                                <span className="text-sm text-muted-foreground">주문 상태</span>
+                                                                                <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>
+                                                                            </div>
+                                                                            <p className="text-xs text-muted-foreground">
+                                                                                주문일시: {new Date(detail.createdAt).toLocaleString('ko-KR')}
+                                                                            </p>
+                                                                        </div>
+                                                                        {isCancelable(detail.orderStatus) && (
+                                                                            <Button
+                                                                                variant="destructive"
+                                                                                size="sm"
+                                                                                onClick={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    if (confirm('정말 이 주문을 취소하시겠습니까?')) {
+                                                                                        cancelOrderMutation.mutate(order.orderId);
+                                                                                    }
+                                                                                }}
+                                                                                disabled={cancelOrderMutation.isPending}
+                                                                                className="flex items-center gap-1"
+                                                                            >
+                                                                                <XCircle className="h-3.5 w-3.5" />
+                                                                                {cancelOrderMutation.isPending ? '취소 중...' : '주문 취소'}
+                                                                            </Button>
+                                                                        )}
+                                                                    </div>
+
+                                                                    <Separator />
+
+                                                                    {/* 주문 상품 목록 */}
+                                                                    <div className="space-y-3">
+                                                                        <h4 className="text-sm font-semibold">주문 상품</h4>
+                                                                        {detail.orderItems.map((item, idx) => (
+                                                                            <div key={idx} className="flex items-center justify-between py-2">
+                                                                                <div className="min-w-0">
+                                                                                    <p className="font-medium text-sm truncate">{item.productName}</p>
+                                                                                    <p className="text-xs text-muted-foreground">{item.storeName} · {item.orderCount}개</p>
+                                                                                </div>
+                                                                                <span className="font-semibold text-sm whitespace-nowrap">{formatPrice(item.orderPrice)}</span>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+
+                                                                    <Separator />
+
+                                                                    {/* 합계 */}
+                                                                    <div className="flex justify-between items-center">
+                                                                        <span className="font-semibold">총 결제 금액</span>
+                                                                        <span className="text-lg font-bold text-primary">{formatPrice(detail.orderAmount)}</span>
+                                                                    </div>
+                                                                </>
+                                                            ) : (
+                                                                <p className="text-sm text-muted-foreground text-center py-4">
+                                                                    주문 상세 정보를 불러올 수 없습니다.
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-12">
+                                        <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                                            <Package className="h-8 w-8 text-muted-foreground" />
+                                        </div>
+                                        <h3 className="font-semibold mb-1">주문 내역이 없습니다</h3>
+                                        <p className="text-sm text-muted-foreground mb-4">아직 주문하신 상품이 없습니다.</p>
+                                        <Button variant="outline" onClick={() => navigate('/products')}>
+                                            상품 둘러보기
+                                        </Button>
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
                     </div>
                 </TabsContent>
 

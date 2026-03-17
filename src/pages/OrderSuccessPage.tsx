@@ -38,7 +38,7 @@ export function OrderSuccessPage() {
         );
     }
 
-    const isSuccess = ['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED'].includes(order.orderStatus);
+    const isSuccess = ['CREATED', 'STOCK_CONFIRMED', 'PAID', 'COMPLETED'].includes(order.orderStatus);
 
     return (
         <div className="container mx-auto px-4 py-12 max-w-2xl">
@@ -92,10 +92,11 @@ export function OrderSuccessPage() {
                         <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">배송 상태</span>
                             <span className={`font-medium ${!isSuccess ? 'text-destructive' : 'text-primary'}`}>
-                                {order.orderStatus === 'PENDING' ? '결제 대기' :
-                                    order.orderStatus === 'CONFIRMED' ? '주문 확인' :
-                                        order.orderStatus === 'SHIPPED' ? '배송 중' :
-                                            order.orderStatus === 'DELIVERED' ? '배송 완료' : '주문 실패(취소)'}
+                                {order.orderStatus === 'CREATED' ? '주문 생성' :
+                                    order.orderStatus === 'STOCK_CONFIRMED' ? '재고 확인' :
+                                        order.orderStatus === 'PAID' ? '결제 완료' :
+                                            order.orderStatus === 'COMPLETED' ? '주문 완료' :
+                                                order.orderStatus === 'CANCELED' ? '주문 취소' : '주문 실패'}
                             </span>
                         </div>
                     </div>

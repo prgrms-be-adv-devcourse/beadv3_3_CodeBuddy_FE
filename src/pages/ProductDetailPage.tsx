@@ -172,7 +172,7 @@ export function ProductDetailPage() {
                 <div className="space-y-6">
                     <div>
                         <Badge variant="outline" className="mb-3">
-                            {getCategoryLabel(product.category)}
+                            {getCategoryLabel(product.categoryCode ?? '')}
                         </Badge>
                         <h1 className="text-3xl font-bold mb-2">{product.productName}</h1>
                         <p className="text-3xl font-bold text-primary">
